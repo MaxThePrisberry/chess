@@ -70,6 +70,13 @@ public class ChessPiece {
         return type;
     }
 
+    /**
+     * This function is used to calculate all directions and is used currently only for the King piece, one square only.
+     *
+     * @param board Current board state moves are evaluated on
+     * @param myPosition Current position moves are evaluated from
+     * @return Collection of valid moves
+     */
     private Collection<ChessMove> calcDirections(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
         for(int i = 0; i < xdirs.length; i++) {
@@ -86,6 +93,14 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * This function calculates line-of-sight valid moves as they apply to the Queen, Bishop, and Rook piece types.
+     *
+     * @param board Current board state moves are evaluated on
+     * @param myPosition Current position moves are evaluated from
+     * @param directions Which directions as declared at the class level the function should evaluate
+     * @return Collection of valid moves
+     */
     private Collection<ChessMove> calcDirections(ChessBoard board, ChessPosition myPosition, int[] directions) {
         List<ChessMove> moves = new ArrayList<>();
         for(int i : directions) {
@@ -115,6 +130,14 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * This function calculates valid moves for the Knight piece by iterating through relative a relative coordinate
+     * set declared on the class level.
+     *
+     * @param board Current board state moves are evaluated on
+     * @param myPosition Current position moves are evaluated from
+     * @return Collection of valid knight moves
+     */
     private Collection<ChessMove> calcKnight(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
         for (int[] knightMove : knightMoves) {
@@ -131,6 +154,14 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * This function calculates valid pawn moves that are only in the forward direction, depending on the color of the
+     * piece. This function accounts for valid beginning moves that are two squares forward.
+     *
+     * @param board Current board state moves are evaluated on
+     * @param myPosition Current position moves are evaluated from
+     * @return Collection of valid default moves
+     */
     private Collection<ChessMove> calcPawnDefaultMovement(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
         int forward = color == ChessGame.TeamColor.WHITE ? 1 : -1;
@@ -161,6 +192,13 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * This function calculates valid pawn moves that are diagonal, or capture moves.
+     *
+     * @param board Current board state moves are evaluated on
+     * @param myPosition Current position moves are evaluated from
+     * @return Collection of valid capture moves
+     */
     private Collection<ChessMove> calcPawnCapture(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
         ChessPiece target;
