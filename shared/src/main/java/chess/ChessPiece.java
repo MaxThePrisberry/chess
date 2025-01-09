@@ -14,7 +14,7 @@ public class ChessPiece {
     private PieceType type;
     private int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
     private int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
-    private int[][] knight_moves = {{2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
+    private int[][] knightMoves = {{2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
 
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType pieceType) {
@@ -89,27 +89,27 @@ public class ChessPiece {
     private Collection<ChessMove> calcDirections(ChessBoard board, ChessPosition myPosition, int[] directions) {
         List<ChessMove> moves = new ArrayList<>();
         for(int i : directions) {
-            int distance_factor = 1;
-            while (1 <= myPosition.getRow() + (ydirs[i]*distance_factor) &&
-                    myPosition.getRow() + (ydirs[i]*distance_factor) <= 8 &&
-                    1 <= myPosition.getColumn() + (xdirs[i]*distance_factor) &&
-                    myPosition.getColumn() + (xdirs[i]*distance_factor) <= 8){
+            int distanceFactor = 1;
+            while (1 <= myPosition.getRow() + (ydirs[i]*distanceFactor) &&
+                    myPosition.getRow() + (ydirs[i]*distanceFactor) <= 8 &&
+                    1 <= myPosition.getColumn() + (xdirs[i]*distanceFactor) &&
+                    myPosition.getColumn() + (xdirs[i]*distanceFactor) <= 8){
                 ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() +
-                        (ydirs[i]*distance_factor), myPosition.getColumn() +
-                        (xdirs[i]*distance_factor)));
+                        (ydirs[i]*distanceFactor), myPosition.getColumn() +
+                        (xdirs[i]*distanceFactor)));
                 if (target == null) {
                     moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                            (ydirs[i]*distance_factor), myPosition.getColumn() +
-                            (xdirs[i]*distance_factor)), null));
+                            (ydirs[i]*distanceFactor), myPosition.getColumn() +
+                            (xdirs[i]*distanceFactor)), null));
                 } else if (target.getTeamColor() == color){
                     break;
                 } else {
                     moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                            (ydirs[i]*distance_factor), myPosition.getColumn() +
-                            (xdirs[i]*distance_factor)), null));
+                            (ydirs[i]*distanceFactor), myPosition.getColumn() +
+                            (xdirs[i]*distanceFactor)), null));
                     break;
                 }
-                distance_factor++;
+                distanceFactor++;
             }
         }
         return moves;
@@ -117,7 +117,7 @@ public class ChessPiece {
 
     private Collection<ChessMove> calcKnight(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
-        for (int[] knightMove : knight_moves) {
+        for (int[] knightMove : knightMoves) {
             if (1 <= myPosition.getRow() + knightMove[0] && myPosition.getRow() + knightMove[0] <= 8 &&
                     1 <= myPosition.getColumn() + knightMove[1] && myPosition.getColumn() + knightMove[1] <= 8) {
                 ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() + knightMove[0],
@@ -148,7 +148,8 @@ public class ChessPiece {
                 moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + forward,
                         myPosition.getColumn()), null));
             }
-            if ((color == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) || (color == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)) {
+            if ((color == ChessGame.TeamColor.WHITE && myPosition.getRow() == 2) ||
+                    (color == ChessGame.TeamColor.BLACK && myPosition.getRow() == 7)) {
                 target = board.getPiece(new ChessPosition(myPosition.getRow() + forward*2,
                         myPosition.getColumn()));
                 if (target == null) {
@@ -170,8 +171,10 @@ public class ChessPiece {
             if (target != null && target.getTeamColor() != color) {
                 if ((color == ChessGame.TeamColor.WHITE && myPosition.getRow() == 7) ||
                         (color == ChessGame.TeamColor.BLACK && myPosition.getRow() == 2)) {
-                    for (PieceType pt : PieceType.values()) {
-                        if (pt == PieceType.PAWN || pt == PieceType.KING) {continue;}
+                    PieceType[] ptt = PieceType.values();
+                    ptt = Arrays.stream(ptt).filter(piece -> piece != PieceType.PAWN &&
+                            piece != PieceType.KING).toArray(PieceType[]::new);
+                    for (PieceType pt : ptt) {
                         moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + forward,
                                 myPosition.getColumn() - 1), pt));
                     }
@@ -187,8 +190,10 @@ public class ChessPiece {
             if (target != null && target.getTeamColor() != color) {
                 if ((color == ChessGame.TeamColor.WHITE && myPosition.getRow() == 7) ||
                         (color == ChessGame.TeamColor.BLACK && myPosition.getRow() == 2)) {
-                    for (PieceType pt : PieceType.values()) {
-                        if (pt == PieceType.PAWN || pt == PieceType.KING) {continue;}
+                    PieceType[] ptt = PieceType.values();
+                    ptt = Arrays.stream(ptt).filter(piece -> piece != PieceType.PAWN &&
+                            piece != PieceType.KING).toArray(PieceType[]::new);
+                    for (PieceType pt : ptt) {
                         moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + forward,
                                 myPosition.getColumn() + 1), pt));
                     }
