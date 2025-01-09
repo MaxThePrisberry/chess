@@ -86,6 +86,35 @@ public class ChessPiece {
         return moves;
     }
 
+    private Collection<ChessMove> calcDirections(ChessBoard board, ChessPosition myPosition, int[] directions) {
+        List<ChessMove> moves = new ArrayList<>();
+        for(int i : directions) {
+            int distance_factor = 1;
+            while (1 <= myPosition.getRow() + (ydirs[i]*distance_factor) &&
+                    myPosition.getRow() + (ydirs[i]*distance_factor) <= 8 &&
+                    1 <= myPosition.getColumn() + (xdirs[i]*distance_factor) &&
+                    myPosition.getColumn() + (xdirs[i]*distance_factor) <= 8){
+                ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() +
+                        (ydirs[i]*distance_factor), myPosition.getColumn() +
+                        (xdirs[i]*distance_factor)));
+                if (target == null) {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
+                            (ydirs[i]*distance_factor), myPosition.getColumn() +
+                            (xdirs[i]*distance_factor)), null));
+                } else if (target.getTeamColor() == color){
+                    break;
+                } else {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
+                            (ydirs[i]*distance_factor), myPosition.getColumn() +
+                            (xdirs[i]*distance_factor)), null));
+                    break;
+                }
+                distance_factor++;
+            }
+        }
+        return moves;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
