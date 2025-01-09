@@ -70,6 +70,22 @@ public class ChessPiece {
         return type;
     }
 
+    private Collection<ChessMove> calcDirections(ChessBoard board, ChessPosition myPosition) {
+        List<ChessMove> moves = new ArrayList<>();
+        for(int i = 0; i < xdirs.length; i++) {
+            if (1 <= myPosition.getRow() + ydirs[i] && myPosition.getRow() + ydirs[i] <= 8 &&
+                    1 <= myPosition.getColumn() + xdirs[i] && myPosition.getColumn() + xdirs[i] <= 8) {
+                ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() + ydirs[i],
+                        myPosition.getColumn() + xdirs[i]));
+                if (target == null || target.getTeamColor() != color) {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + ydirs[i],
+                            myPosition.getColumn() + xdirs[i]), null));
+                }
+            }
+        }
+        return moves;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -81,17 +97,7 @@ public class ChessPiece {
         List<ChessMove> moves = new ArrayList<>();
         switch (type) {
             case KING -> {
-                for(int i = 0; i < xdirs.length; i++) {
-                    if (1 <= myPosition.getRow() + ydirs[i] && myPosition.getRow() + ydirs[i] <= 8 &&
-                            1 <= myPosition.getColumn() + xdirs[i] && myPosition.getColumn() + xdirs[i] <= 8) {
-                        ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() + ydirs[i],
-                                myPosition.getColumn() + xdirs[i]));
-                        if (target == null || target.getTeamColor() != color) {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + ydirs[i],
-                                    myPosition.getColumn() + xdirs[i]), null));
-                        }
-                    }
-                }
+                moves.addAll(calcDirections(board, myPosition));
             }
             case QUEEN -> {
                 for(int i = 0; i < xdirs.length; i++) {
