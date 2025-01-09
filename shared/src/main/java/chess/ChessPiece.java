@@ -129,82 +129,13 @@ public class ChessPiece {
                 moves.addAll(calcDirections(board, myPosition));
             }
             case QUEEN -> {
-                for(int i = 0; i < xdirs.length; i++) {
-                    int distance_factor = 1;
-                    while (1 <= myPosition.getRow() + (ydirs[i]*distance_factor) &&
-                            myPosition.getRow() + (ydirs[i]*distance_factor) <= 8 &&
-                            1 <= myPosition.getColumn() + (xdirs[i]*distance_factor) &&
-                            myPosition.getColumn() + (xdirs[i]*distance_factor) <= 8){
-                        ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() +
-                                (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                (xdirs[i]*distance_factor)));
-                        if (target == null) {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                                    (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                    (xdirs[i]*distance_factor)), null));
-                        } else if (target.getTeamColor() == color){
-                            break;
-                        } else {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                                    (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                    (xdirs[i]*distance_factor)), null));
-                            break;
-                        }
-                        distance_factor++;
-                    }
-                }
+                moves.addAll(calcDirections(board, myPosition, new int[]{0, 1, 2, 3, 4, 5, 6, 7}));
             }
             case BISHOP -> {
-                for(int i = 4; i < xdirs.length; i++) {
-                    int distance_factor = 1;
-                    while (1 <= myPosition.getRow() + (ydirs[i]*distance_factor) &&
-                            myPosition.getRow() + (ydirs[i]*distance_factor) <= 8 &&
-                            1 <= myPosition.getColumn() + (xdirs[i]*distance_factor) &&
-                            myPosition.getColumn() + (xdirs[i]*distance_factor) <= 8){
-                        ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() +
-                                (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                (xdirs[i]*distance_factor)));
-                        if (target == null) {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                                    (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                    (xdirs[i]*distance_factor)), null));
-                        } else if (target.getTeamColor() == color){
-                            break;
-                        } else {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                                    (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                    (xdirs[i]*distance_factor)), null));
-                            break;
-                        }
-                        distance_factor++;
-                    }
-                }
+                moves.addAll(calcDirections(board, myPosition, new int[]{4, 5, 6, 7}));
             }
             case ROOK -> {
-                for(int i = 0; i < xdirs.length/2; i++) {
-                    int distance_factor = 1;
-                    while (1 <= myPosition.getRow() + (ydirs[i]*distance_factor) &&
-                            myPosition.getRow() + (ydirs[i]*distance_factor) <= 8 &&
-                            1 <= myPosition.getColumn() + (xdirs[i]*distance_factor) &&
-                            myPosition.getColumn() + (xdirs[i]*distance_factor) <= 8){
-                        ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() +
-                                (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                (xdirs[i]*distance_factor)));
-                        if (target == null) {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                                    (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                    (xdirs[i]*distance_factor)), null));
-                        } else if (target.getTeamColor() == color){
-                            break;
-                        } else {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                                    (ydirs[i]*distance_factor), myPosition.getColumn() +
-                                    (xdirs[i]*distance_factor)), null));
-                            break;
-                        }
-                        distance_factor++;
-                    }
-                }
+                moves.addAll(calcDirections(board, myPosition, new int[]{0, 1, 2, 3}));
             }
             case KNIGHT -> {
                 for (int[] knightMove : knight_moves) {
