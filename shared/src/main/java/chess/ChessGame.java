@@ -15,9 +15,12 @@ public class ChessGame {
     private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
     private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
 
+    private List<ChessMove> history;
+
     public ChessGame() {
         turnColor = TeamColor.WHITE;
         board = new ChessBoard();
+        history = new ArrayList<>();
         board.resetBoard();
     }
 
@@ -43,6 +46,73 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    private boolean positionHasMoved(ChessPosition position) {
+        for (ChessMove move : history) {
+            if (move.getStartPosition().equals(position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Collection<ChessMove> getCastlingMoves(ChessPosition startPosition) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        ChessPosition whiteKing = new ChessPosition(1, 5);
+        ChessPosition blackKing = new ChessPosition(8, 5);
+        if (startPosition.equals(whiteKing)) {
+            if (!positionHasMoved(whiteKing)) {
+                if (!positionHasMoved(new ChessPosition(1, 1))) {
+                    boolean validCastle = true;
+                    for (int i = 2; i <= 4; i++) {
+                        if (board.getPiece(new ChessPosition(1, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(whiteKing, new ChessPosition(1, 3), null));
+                    }
+                }
+                if (!positionHasMoved(new ChessPosition(1, 8))) {
+                    boolean validCastle = true;
+                    for (int i = 6; i <= 7; i++) {
+                        if (board.getPiece(new ChessPosition(1, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(whiteKing, new ChessPosition(1, 7), null));
+                    }
+                }
+            }
+        } else if (startPosition.equals(blackKing)) {
+            if (!positionHasMoved(blackKing)) {
+                if (!positionHasMoved(new ChessPosition(8, 1))) {
+                    boolean validCastle = true;
+                    for (int i = 2; i <= 4; i++) {
+                        if (board.getPiece(new ChessPosition(8, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(whiteKing, new ChessPosition(8, 3), null));
+                    }
+                }
+                if (!positionHasMoved(new ChessPosition(8, 8))) {
+                    boolean validCastle = true;
+                    for (int i = 6; i <= 7; i++) {
+                        if (board.getPiece(new ChessPosition(8, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(whiteKing, new ChessPosition(8, 7), null));
+                    }
+                }
+            }
+        }
+        return moves;
     }
 
     /**
@@ -112,6 +182,7 @@ public class ChessGame {
             board.addPiece(move.getEndPosition(), tmp);
             throw new InvalidMoveException("Invalid move: This move results in check.");
         }
+        history.add(move);
         turnColor = turnColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
