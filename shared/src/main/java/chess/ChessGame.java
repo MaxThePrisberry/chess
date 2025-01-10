@@ -71,7 +71,7 @@ public class ChessGame {
         board.addPiece(move.getEndPosition(), piece);
     }
 
-    private ChessPosition getKingLocation() {
+    private ChessPosition getKingLocation(TeamColor teamColor) {
         ChessPosition kingLocation = null;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -91,7 +91,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingLocation = getKingLocation();
+        ChessPosition kingLocation = getKingLocation(teamColor);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
