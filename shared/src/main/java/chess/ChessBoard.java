@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,8 +15,23 @@ public class ChessBoard {
 
     private ChessPiece[][] board;
 
+    private List<ChessMove> history;
+
     public ChessBoard() {
         board = new ChessPiece[8][8];
+        history = new ArrayList<>();
+    }
+
+    public void logMove(ChessMove move) {
+        history.add(move);
+    }
+
+    public List<ChessMove> getHistory() {
+        return history;
+    }
+
+    public void clearHistory() {
+        history = new ArrayList<>();
     }
 
     /**
