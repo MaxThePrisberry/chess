@@ -11,6 +11,8 @@ import java.util.Collection;
 public class ChessGame {
 
     private TeamColor turnColor;
+    private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
+    private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
 
     public ChessGame() {
         turnColor = TeamColor.WHITE;

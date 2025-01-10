@@ -12,9 +12,9 @@ public class ChessPiece {
 
     private ChessGame.TeamColor color;
     private PieceType type;
-    private int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
-    private int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
-    private int[][] knightMoves = {{2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
+    private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
+    private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
+    private static final int[][] knightMoves = {{2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
 
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType pieceType) {
