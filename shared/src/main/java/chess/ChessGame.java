@@ -1,7 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -76,12 +78,31 @@ public class ChessGame {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                if (piece != null && piece.getTeamColor() == teamColor &&
+                        piece.getPieceType() == ChessPiece.PieceType.KING) {
                     kingLocation = new ChessPosition(i, j);
                 }
             }
         }
         return kingLocation;
+    }
+
+    private Collection<ChessPosition> getTargetedSquares(TeamColor teamColor) {
+        List<ChessMove> moves = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    moves.addAll(piece.pieceMoves(board, position));
+                }
+            }
+        }
+        List<ChessPosition> targetedSquares = new ArrayList<>();
+        for (ChessMove move : moves) {
+            targetedSquares.add(move.getEndPosition());
+        }
+        return targetedSquares;
     }
     
     /**
