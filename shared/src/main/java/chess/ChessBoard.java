@@ -34,10 +34,6 @@ public class ChessBoard {
         return history;
     }
 
-    public void clearHistory() {
-        history = new ArrayList<>();
-    }
-
     /**
      * Adds a chess piece to the chessboard
      *
