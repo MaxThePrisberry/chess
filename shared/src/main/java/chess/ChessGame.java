@@ -129,6 +129,20 @@ public class ChessGame {
         return kingLocation;
     }
 
+    private Collection<ChessMove> getAllMoves(TeamColor teamColor) {
+        List<ChessMove> moves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    moves.addAll(piece.pieceMoves(board, position));
+                }
+            }
+        }
+        return moves;
+    }
+
     private Collection<ChessPosition> getTargetedSquares(TeamColor teamColor) {
         Set<ChessPosition> targetedSquares = new HashSet<>();
         for (int i = 1; i <= 8; i++) {
