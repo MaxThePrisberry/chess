@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -60,7 +61,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if (piece.getTeamColor() != turnColor) {
+            throw new InvalidMoveException("Invalid move: Not your turn.");
+        }
+        if (!Arrays.asList(piece.pieceMoves(board, move.getStartPosition())).contains(move.getEndPosition())) {
+            throw new InvalidMoveException("Invalid move: Not in available moves.");
+        }
+        board.addPiece(move.getEndPosition(), piece);
     }
 
     /**
