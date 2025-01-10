@@ -185,17 +185,38 @@ public class ChessGame {
                 throw new InvalidMoveException("Invalid move: this move results in check.");
             }
         } else {
-            ChessPiece tmp = board.getPiece(move.getEndPosition());
-            if (move.getPromotionPiece() != null) {
-                board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
-            } else {
+            ChessMove lastMove = board.getLastMove();
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN && piece.getTeamColor() == TeamColor.WHITE &&
+                    move.getStartPosition().getRow() == 5 && lastMove.getEndPosition().getRow() == 5 &&
+                    board.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    Math.abs(lastMove.getEndPosition().getRow()-lastMove.getStartPosition().getRow()) == 2 &&
+                    board.getPiece(lastMove.getEndPosition()).getTeamColor() != piece.getTeamColor() &&
+                    Math.abs(lastMove.getEndPosition().getColumn()-move.getStartPosition().getColumn()) == 1) {
                 board.addPiece(move.getEndPosition(), piece);
-            }
-            board.clearPiece(move.getStartPosition());
-            if (isInCheck(piece.getTeamColor())) {
-                board.addPiece(move.getStartPosition(), piece);
-                board.addPiece(move.getEndPosition(), tmp);
-                throw new InvalidMoveException("Invalid move: This move results in check.");
+                board.clearPiece(move.getStartPosition());
+                board.clearPiece(lastMove.getEndPosition());
+            } else if (piece.getPieceType() == ChessPiece.PieceType.PAWN && piece.getTeamColor() == TeamColor.BLACK &&
+                    move.getStartPosition().getRow() == 4 && lastMove.getEndPosition().getRow() == 4 &&
+                    board.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    Math.abs(lastMove.getEndPosition().getRow()-lastMove.getStartPosition().getRow()) == 2 &&
+                    board.getPiece(lastMove.getEndPosition()).getTeamColor() != piece.getTeamColor() &&
+                    Math.abs(lastMove.getEndPosition().getColumn()-move.getStartPosition().getColumn()) == 1) {
+                board.addPiece(move.getEndPosition(), piece);
+                board.clearPiece(move.getStartPosition());
+                board.clearPiece(lastMove.getEndPosition());
+            } else {
+                ChessPiece tmp = board.getPiece(move.getEndPosition());
+                if (move.getPromotionPiece() != null) {
+                    board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+                } else {
+                    board.addPiece(move.getEndPosition(), piece);
+                }
+                board.clearPiece(move.getStartPosition());
+                if (isInCheck(piece.getTeamColor())) {
+                    board.addPiece(move.getStartPosition(), piece);
+                    board.addPiece(move.getEndPosition(), tmp);
+                    throw new InvalidMoveException("Invalid move: This move results in check.");
+                }
             }
         }
         board.logMove(move);
