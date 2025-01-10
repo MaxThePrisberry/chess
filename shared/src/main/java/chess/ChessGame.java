@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -91,19 +88,15 @@ public class ChessGame {
     }
 
     private Collection<ChessPosition> getTargetedSquares(TeamColor teamColor) {
-        List<ChessMove> moves = new ArrayList<>();
+        Set<ChessPosition> targetedSquares = new HashSet<>();
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
                 if (piece != null && piece.getTeamColor() == teamColor) {
-                    moves.addAll(piece.pieceMoves(board, position));
+                    targetedSquares.addAll(piece.pieceTargets(board, position));
                 }
             }
-        }
-        List<ChessPosition> targetedSquares = new ArrayList<>();
-        for (ChessMove move : moves) {
-            targetedSquares.add(move.getEndPosition());
         }
         return targetedSquares;
     }
@@ -139,9 +132,7 @@ public class ChessGame {
                     1 <= kingLocation.getColumn() + xdirs[i] && kingLocation.getColumn() + xdirs[i] <= 8) {
                 ChessPosition position = new ChessPosition(kingLocation.getRow() + ydirs[i],
                         kingLocation.getColumn() + xdirs[i]);
-                if (targetedSquares.contains(position)) {
-                    continue;
-                } else {
+                if (!targetedSquares.contains(position)) {
                     ChessPiece target = board.getPiece(position);
                     if (target == null || target.getTeamColor() == (teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE)) {
                         return false;
