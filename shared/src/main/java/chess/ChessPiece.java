@@ -244,6 +244,73 @@ public class ChessPiece {
         return moves;
     }
 
+    private boolean positionHasMoved(ChessBoard board, ChessPosition position) {
+        for (ChessMove move : board.getHistory()) {
+            if (move.getStartPosition().equals(position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Collection<ChessMove> getCastlingMoves(ChessBoard board, ChessPosition startPosition) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        ChessPosition whiteKing = new ChessPosition(1, 5);
+        ChessPosition blackKing = new ChessPosition(8, 5);
+        if (startPosition.equals(whiteKing)) {
+            if (!positionHasMoved(board, whiteKing)) {
+                if (!positionHasMoved(board, new ChessPosition(1, 1))) {
+                    boolean validCastle = true;
+                    for (int i = 2; i <= 4; i++) {
+                        if (board.getPiece(new ChessPosition(1, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(whiteKing, new ChessPosition(1, 3), null));
+                    }
+                }
+                if (!positionHasMoved(board, new ChessPosition(1, 8))) {
+                    boolean validCastle = true;
+                    for (int i = 6; i <= 7; i++) {
+                        if (board.getPiece(new ChessPosition(1, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(whiteKing, new ChessPosition(1, 7), null));
+                    }
+                }
+            }
+        } else if (startPosition.equals(blackKing)) {
+            if (!positionHasMoved(board, blackKing)) {
+                if (!positionHasMoved(board, new ChessPosition(8, 1))) {
+                    boolean validCastle = true;
+                    for (int i = 2; i <= 4; i++) {
+                        if (board.getPiece(new ChessPosition(8, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(blackKing, new ChessPosition(8, 3), null));
+                    }
+                }
+                if (!positionHasMoved(board, new ChessPosition(8, 8))) {
+                    boolean validCastle = true;
+                    for (int i = 6; i <= 7; i++) {
+                        if (board.getPiece(new ChessPosition(8, i)) != null) {
+                            validCastle = false;
+                        }
+                    }
+                    if (validCastle) {
+                        moves.add(new ChessMove(blackKing, new ChessPosition(8, 7), null));
+                    }
+                }
+            }
+        }
+        return moves;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -256,6 +323,7 @@ public class ChessPiece {
         switch (type) {
             case KING -> {
                 moves.addAll(calcDirections(board, myPosition));
+                moves.addAll(getCastlingMoves(board, myPosition));
             }
             case QUEEN -> {
                 moves.addAll(calcDirections(board, myPosition, new int[]{0, 1, 2, 3, 4, 5, 6, 7}));
