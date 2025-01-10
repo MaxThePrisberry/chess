@@ -11,11 +11,11 @@ import java.util.Collection;
 public class ChessGame {
 
     private TeamColor turnColor;
-    private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
-    private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
+    private ChessBoard board;
 
     public ChessGame() {
         turnColor = TeamColor.WHITE;
+        board = new ChessBoard();
     }
 
     /**
@@ -70,7 +70,29 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingLocation = null;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    kingLocation = new ChessPosition(i, j);
+                }
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    for (ChessMove move : piece.pieceMoves(board, position)) {
+                        if (kingLocation == move.getEndPosition()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
