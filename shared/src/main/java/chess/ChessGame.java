@@ -15,6 +15,8 @@ public class ChessGame {
 
     private TeamColor turnColor;
     private ChessBoard board;
+    private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
+    private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
 
     public ChessGame() {
         turnColor = TeamColor.WHITE;
@@ -125,7 +127,28 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingLocation = getKingLocation(teamColor);
+        Collection<ChessPosition> targetedSquares = getTargetedSquares(
+                teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+        if (!targetedSquares.contains(kingLocation)) {
+            return false;
+        }
+        for (int i = 0; i < 8; i++) {
+            if (1 <= kingLocation.getRow() + ydirs[i] && kingLocation.getRow() + ydirs[i] <= 8 &&
+                    1 <= kingLocation.getColumn() + xdirs[i] && kingLocation.getColumn() + xdirs[i] <= 8) {
+                ChessPosition position = new ChessPosition(kingLocation.getRow() + ydirs[i],
+                        kingLocation.getColumn() + xdirs[i]);
+                if (targetedSquares.contains(position)) {
+                    continue;
+                } else {
+                    ChessPiece target = board.getPiece(position);
+                    if (target == null || target.getTeamColor() == (teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
