@@ -26,6 +26,10 @@ public class ChessBoard {
         history.add(move);
     }
 
+    public ChessMove getLastMove() {
+        return history.getLast();
+    }
+
     public List<ChessMove> getHistory() {
         return history;
     }

@@ -311,6 +311,35 @@ public class ChessPiece {
         return moves;
     }
 
+    private ChessMove calcEnPassant(ChessBoard board, ChessPosition myPosition) {
+        ChessPiece piece = board.getPiece(myPosition);
+        ChessMove lastMove = board.getLastMove();
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE && myPosition.getRow() == 5) {
+            ChessMove leftMove = new ChessMove(new ChessPosition(7, myPosition.getColumn()-1),
+                    new ChessPosition(5, myPosition.getColumn()-1), null);
+            ChessMove rightMove = new ChessMove(new ChessPosition(7, myPosition.getColumn()+1),
+                    new ChessPosition(5, myPosition.getColumn()+1), null);
+            if (lastMove.equals(leftMove)) {
+                return new ChessMove(myPosition, new ChessPosition(6, myPosition.getColumn()-1), null);
+            }
+            if (lastMove.equals(rightMove)) {
+                return new ChessMove(myPosition, new ChessPosition(6, myPosition.getColumn()+1), null);
+            }
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK && myPosition.getRow() == 4) {
+            ChessMove leftMove = new ChessMove(new ChessPosition(2, myPosition.getColumn()-1),
+                    new ChessPosition(4, myPosition.getColumn()-1), null);
+            ChessMove rightMove = new ChessMove(new ChessPosition(2, myPosition.getColumn()+1),
+                    new ChessPosition(4, myPosition.getColumn()+1), null);
+            if (lastMove.equals(leftMove)) {
+                return new ChessMove(myPosition, new ChessPosition(3, myPosition.getColumn()-1), null);
+            }
+            if (lastMove.equals(rightMove)) {
+                return new ChessMove(myPosition, new ChessPosition(3, myPosition.getColumn()+1), null);
+            }
+        }
+        return null;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -340,6 +369,10 @@ public class ChessPiece {
             case PAWN -> {
                 moves.addAll(calcPawnDefaultMovement(board, myPosition));
                 moves.addAll(calcPawnCapture(board, myPosition));
+                ChessMove enPassant = calcEnPassant(board, myPosition);
+                if (enPassant != null) {
+                    moves.add(enPassant);
+                }
             }
         }
         return moves;
