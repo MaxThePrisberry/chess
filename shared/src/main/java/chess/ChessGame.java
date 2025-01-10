@@ -71,13 +71,7 @@ public class ChessGame {
         board.addPiece(move.getEndPosition(), piece);
     }
 
-    /**
-     * Determines if the given team is in check
-     *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
-     */
-    public boolean isInCheck(TeamColor teamColor) {
+    private ChessPosition getKingLocation() {
         ChessPosition kingLocation = null;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -87,6 +81,17 @@ public class ChessGame {
                 }
             }
         }
+        return kingLocation;
+    }
+    
+    /**
+     * Determines if the given team is in check
+     *
+     * @param teamColor which team to check for check
+     * @return True if the specified team is in check
+     */
+    public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingLocation = getKingLocation();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
