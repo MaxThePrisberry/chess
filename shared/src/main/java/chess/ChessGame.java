@@ -12,8 +12,8 @@ public class ChessGame {
 
     private TeamColor turnColor;
     private ChessBoard board;
-    private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
-    private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
+    private static final int[] X_DIRS = {-1, 1, 0, 0, -1, -1, 1, 1};
+    private static final int[] Y_DIRS = {0, 0, -1, 1, -1, 1, -1, 1};
 
     public ChessGame() {
         turnColor = TeamColor.WHITE;
@@ -313,10 +313,10 @@ public class ChessGame {
             return false;
         }
         for (int i = 0; i < 8; i++) {
-            if (1 <= kingLocation.getRow() + ydirs[i] && kingLocation.getRow() + ydirs[i] <= 8 &&
-                    1 <= kingLocation.getColumn() + xdirs[i] && kingLocation.getColumn() + xdirs[i] <= 8) {
-                ChessPosition position = new ChessPosition(kingLocation.getRow() + ydirs[i],
-                        kingLocation.getColumn() + xdirs[i]);
+            if (1 <= kingLocation.getRow() + Y_DIRS[i] && kingLocation.getRow() + Y_DIRS[i] <= 8 &&
+                    1 <= kingLocation.getColumn() + X_DIRS[i] && kingLocation.getColumn() + X_DIRS[i] <= 8) {
+                ChessPosition position = new ChessPosition(kingLocation.getRow() + Y_DIRS[i],
+                        kingLocation.getColumn() + X_DIRS[i]);
                 ChessPiece target = board.getPiece(position);
                 if (!targetedSquares.contains(position)) {
                     target = board.getPiece(position);

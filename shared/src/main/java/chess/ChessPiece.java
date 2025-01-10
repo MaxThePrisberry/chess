@@ -12,9 +12,9 @@ public class ChessPiece {
 
     private ChessGame.TeamColor color;
     private PieceType type;
-    private static final int[] xdirs = {-1, 1, 0, 0, -1, -1, 1, 1};
-    private static final int[] ydirs = {0, 0, -1, 1, -1, 1, -1, 1};
-    private static final int[][] knightMoves = {{2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
+    private static final int[] X_DIRS = {-1, 1, 0, 0, -1, -1, 1, 1};
+    private static final int[] Y_DIRS = {0, 0, -1, 1, -1, 1, -1, 1};
+    private static final int[][] KNIGHT_MOVES = {{2, -1}, {2, 1}, {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
 
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType pieceType) {
@@ -79,14 +79,14 @@ public class ChessPiece {
      */
     private Collection<ChessMove> calcDirections(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
-        for(int i = 0; i < xdirs.length; i++) {
-            if (1 <= myPosition.getRow() + ydirs[i] && myPosition.getRow() + ydirs[i] <= 8 &&
-                    1 <= myPosition.getColumn() + xdirs[i] && myPosition.getColumn() + xdirs[i] <= 8) {
-                ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() + ydirs[i],
-                        myPosition.getColumn() + xdirs[i]));
+        for(int i = 0; i < X_DIRS.length; i++) {
+            if (1 <= myPosition.getRow() + Y_DIRS[i] && myPosition.getRow() + Y_DIRS[i] <= 8 &&
+                    1 <= myPosition.getColumn() + X_DIRS[i] && myPosition.getColumn() + X_DIRS[i] <= 8) {
+                ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() + Y_DIRS[i],
+                        myPosition.getColumn() + X_DIRS[i]));
                 if (target == null || target.getTeamColor() != color) {
-                    moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + ydirs[i],
-                            myPosition.getColumn() + xdirs[i]), null));
+                    moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + Y_DIRS[i],
+                            myPosition.getColumn() + X_DIRS[i]), null));
                 }
             }
         }
@@ -105,23 +105,23 @@ public class ChessPiece {
         List<ChessMove> moves = new ArrayList<>();
         for(int i : directions) {
             int distanceFactor = 1;
-            while (1 <= myPosition.getRow() + (ydirs[i]*distanceFactor) &&
-                    myPosition.getRow() + (ydirs[i]*distanceFactor) <= 8 &&
-                    1 <= myPosition.getColumn() + (xdirs[i]*distanceFactor) &&
-                    myPosition.getColumn() + (xdirs[i]*distanceFactor) <= 8){
+            while (1 <= myPosition.getRow() + (Y_DIRS[i]*distanceFactor) &&
+                    myPosition.getRow() + (Y_DIRS[i]*distanceFactor) <= 8 &&
+                    1 <= myPosition.getColumn() + (X_DIRS[i]*distanceFactor) &&
+                    myPosition.getColumn() + (X_DIRS[i]*distanceFactor) <= 8){
                 ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() +
-                        (ydirs[i]*distanceFactor), myPosition.getColumn() +
-                        (xdirs[i]*distanceFactor)));
+                        (Y_DIRS[i]*distanceFactor), myPosition.getColumn() +
+                        (X_DIRS[i]*distanceFactor)));
                 if (target == null) {
                     moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                            (ydirs[i]*distanceFactor), myPosition.getColumn() +
-                            (xdirs[i]*distanceFactor)), null));
+                            (Y_DIRS[i]*distanceFactor), myPosition.getColumn() +
+                            (X_DIRS[i]*distanceFactor)), null));
                 } else if (target.getTeamColor() == color){
                     break;
                 } else {
                     moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() +
-                            (ydirs[i]*distanceFactor), myPosition.getColumn() +
-                            (xdirs[i]*distanceFactor)), null));
+                            (Y_DIRS[i]*distanceFactor), myPosition.getColumn() +
+                            (X_DIRS[i]*distanceFactor)), null));
                     break;
                 }
                 distanceFactor++;
@@ -140,7 +140,7 @@ public class ChessPiece {
      */
     private Collection<ChessMove> calcKnight(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
-        for (int[] knightMove : knightMoves) {
+        for (int[] knightMove : KNIGHT_MOVES) {
             if (1 <= myPosition.getRow() + knightMove[0] && myPosition.getRow() + knightMove[0] <= 8 &&
                     1 <= myPosition.getColumn() + knightMove[1] && myPosition.getColumn() + knightMove[1] <= 8) {
                 ChessPiece target = board.getPiece(new ChessPosition(myPosition.getRow() + knightMove[0],
@@ -381,16 +381,16 @@ public class ChessPiece {
         Set<ChessPosition> targets = new HashSet<>();
         for(int i : directions) {
             int distanceFactor = 1;
-            while (1 <= myPosition.getRow() + (ydirs[i]*distanceFactor) &&
-                    myPosition.getRow() + (ydirs[i]*distanceFactor) <= 8 &&
-                    1 <= myPosition.getColumn() + (xdirs[i]*distanceFactor) &&
-                    myPosition.getColumn() + (xdirs[i]*distanceFactor) <= 8){
+            while (1 <= myPosition.getRow() + (Y_DIRS[i]*distanceFactor) &&
+                    myPosition.getRow() + (Y_DIRS[i]*distanceFactor) <= 8 &&
+                    1 <= myPosition.getColumn() + (X_DIRS[i]*distanceFactor) &&
+                    myPosition.getColumn() + (X_DIRS[i]*distanceFactor) <= 8){
                 ChessPosition position = new ChessPosition(myPosition.getRow() +
-                        (ydirs[i]*distanceFactor), myPosition.getColumn() + (xdirs[i]*distanceFactor));
+                        (Y_DIRS[i]*distanceFactor), myPosition.getColumn() + (X_DIRS[i]*distanceFactor));
                 ChessPiece target = board.getPiece(position);
                 targets.add(new ChessPosition(myPosition.getRow() +
-                            (ydirs[i]*distanceFactor), myPosition.getColumn() +
-                            (xdirs[i]*distanceFactor)));
+                            (Y_DIRS[i]*distanceFactor), myPosition.getColumn() +
+                            (X_DIRS[i]*distanceFactor)));
                 if (target != null) {
                     break;
                 }
@@ -404,11 +404,11 @@ public class ChessPiece {
         Set<ChessPosition> targets = new HashSet<>();
         switch (type) {
             case KING -> {
-                for(int i = 0; i < xdirs.length; i++) {
-                    if (1 <= myPosition.getRow() + ydirs[i] && myPosition.getRow() + ydirs[i] <= 8 &&
-                            1 <= myPosition.getColumn() + xdirs[i] && myPosition.getColumn() + xdirs[i] <= 8) {
-                        targets.add(new ChessPosition(myPosition.getRow() + ydirs[i],
-                                    myPosition.getColumn() + xdirs[i]));
+                for(int i = 0; i < X_DIRS.length; i++) {
+                    if (1 <= myPosition.getRow() + Y_DIRS[i] && myPosition.getRow() + Y_DIRS[i] <= 8 &&
+                            1 <= myPosition.getColumn() + X_DIRS[i] && myPosition.getColumn() + X_DIRS[i] <= 8) {
+                        targets.add(new ChessPosition(myPosition.getRow() + Y_DIRS[i],
+                                    myPosition.getColumn() + X_DIRS[i]));
                     }
                 }
             }
@@ -422,7 +422,7 @@ public class ChessPiece {
                 targets.addAll(calcTargets(board, myPosition, new int[]{0, 1, 2, 3}));
             }
             case KNIGHT -> {
-                for (int[] knightMove : knightMoves) {
+                for (int[] knightMove : KNIGHT_MOVES) {
                     if (1 <= myPosition.getRow() + knightMove[0] && myPosition.getRow() + knightMove[0] <= 8 &&
                             1 <= myPosition.getColumn() + knightMove[1] && myPosition.getColumn() + knightMove[1] <= 8) {
                         targets.add(new ChessPosition(myPosition.getRow() + knightMove[0],
