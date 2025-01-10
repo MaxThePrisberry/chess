@@ -314,6 +314,9 @@ public class ChessPiece {
     private ChessMove calcEnPassant(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         ChessMove lastMove = board.getLastMove();
+        if (lastMove == null) {
+            return null;
+        }
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE && myPosition.getRow() == 5) {
             ChessMove leftMove = new ChessMove(new ChessPosition(7, myPosition.getColumn()-1),
                     new ChessPosition(5, myPosition.getColumn()-1), null);

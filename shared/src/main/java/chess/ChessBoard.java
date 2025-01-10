@@ -27,7 +27,7 @@ public class ChessBoard {
     }
 
     public ChessMove getLastMove() {
-        return history.getLast();
+        return history.isEmpty() ? null : history.getLast();
     }
 
     public List<ChessMove> getHistory() {
