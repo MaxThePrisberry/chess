@@ -283,17 +283,16 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    if (piece.pieceTargets(board, position).contains(targetPosition)) {
-                        ChessPiece tmp = board.getPiece(targetPosition);
-                        board.addPiece(targetPosition, piece);
-                        board.clearPiece(position);
-                        if (!isInCheck(teamColor)) {
-                            return true;
-                        }
-                        board.addPiece(position, piece);
-                        board.addPiece(targetPosition, tmp);
+                if (piece != null && piece.getTeamColor() == teamColor &&
+                        piece.pieceTargets(board, position).contains(targetPosition)) {
+                    ChessPiece tmp = board.getPiece(targetPosition);
+                    board.addPiece(targetPosition, piece);
+                    board.clearPiece(position);
+                    if (!isInCheck(teamColor)) {
+                        return true;
                     }
+                    board.addPiece(position, piece);
+                    board.addPiece(targetPosition, tmp);
                 }
             }
         }
