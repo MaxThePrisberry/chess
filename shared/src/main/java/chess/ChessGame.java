@@ -64,13 +64,35 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if (piece.getTeamColor() != turnColor) {
+        if (piece == null) {
+            throw new InvalidMoveException("Invalid move: No piece exists at location.");
+        } else if (piece.getTeamColor() != turnColor) {
             throw new InvalidMoveException("Invalid move: Not your turn.");
+        } else {
+            Collection<ChessMove> moves = piece.pieceMoves(board, move.getStartPosition());
+            boolean validMove = false;
+            for (ChessMove possibleMove : moves) {
+                if (possibleMove.equals(move)) {
+                    validMove = true;
+                }
+            }
+            if (!validMove) {
+                throw new InvalidMoveException("Invalid move: Not in available moves.");
+            }
         }
-        if (!Arrays.asList(piece.pieceMoves(board, move.getStartPosition())).contains(move.getEndPosition())) {
-            throw new InvalidMoveException("Invalid move: Not in available moves.");
+        ChessPiece tmp = board.getPiece(move.getEndPosition());
+        if (move.getPromotionPiece() != null) {
+            board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+        } else {
+            board.addPiece(move.getEndPosition(), piece);
         }
-        board.addPiece(move.getEndPosition(), piece);
+        board.clearPiece(move.getStartPosition());
+        if (isInCheck(piece.getTeamColor())) {
+            board.addPiece(move.getStartPosition(), piece);
+            board.addPiece(move.getEndPosition(), tmp);
+            throw new InvalidMoveException("Invalid move: This move results in check.");
+        }
+        turnColor = turnColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     private ChessPosition getKingLocation(TeamColor teamColor) {
