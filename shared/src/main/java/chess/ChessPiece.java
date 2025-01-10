@@ -276,4 +276,67 @@ public class ChessPiece {
         }
         return moves;
     }
+
+    private Collection<ChessPosition> calcTargets(ChessBoard board, ChessPosition myPosition, int[] directions) {
+        Set<ChessPosition> targets = new HashSet<>();
+        for(int i : directions) {
+            int distanceFactor = 1;
+            while (1 <= myPosition.getRow() + (ydirs[i]*distanceFactor) &&
+                    myPosition.getRow() + (ydirs[i]*distanceFactor) <= 8 &&
+                    1 <= myPosition.getColumn() + (xdirs[i]*distanceFactor) &&
+                    myPosition.getColumn() + (xdirs[i]*distanceFactor) <= 8){
+                ChessPosition position = new ChessPosition(myPosition.getRow() +
+                        (ydirs[i]*distanceFactor), myPosition.getColumn() + (xdirs[i]*distanceFactor));
+                ChessPiece target = board.getPiece(position);
+                targets.add(new ChessPosition(myPosition.getRow() +
+                            (ydirs[i]*distanceFactor), myPosition.getColumn() +
+                            (xdirs[i]*distanceFactor)));
+                if (target != null) {
+                    break;
+                }
+                distanceFactor++;
+            }
+        }
+        return targets;
+    }
+
+    public Collection<ChessPosition> pieceTargets(ChessBoard board, ChessPosition myPosition) {
+        Set<ChessPosition> targets = new HashSet<>();
+        switch (type) {
+            case KING -> {
+                for(int i = 0; i < xdirs.length; i++) {
+                    if (1 <= myPosition.getRow() + ydirs[i] && myPosition.getRow() + ydirs[i] <= 8 &&
+                            1 <= myPosition.getColumn() + xdirs[i] && myPosition.getColumn() + xdirs[i] <= 8) {
+                        targets.add(new ChessPosition(myPosition.getRow() + ydirs[i],
+                                    myPosition.getColumn() + xdirs[i]));
+                    }
+                }
+            }
+            case QUEEN -> {
+                targets.addAll(calcTargets(board, myPosition, new int[]{0, 1, 2, 3, 4, 5, 6, 7}));
+            }
+            case BISHOP -> {
+                targets.addAll(calcTargets(board, myPosition, new int[]{4, 5, 6, 7}));
+            }
+            case ROOK -> {
+                targets.addAll(calcTargets(board, myPosition, new int[]{0, 1, 2, 3}));
+            }
+            case KNIGHT -> {
+                for (int[] knightMove : knightMoves) {
+                    if (1 <= myPosition.getRow() + knightMove[0] && myPosition.getRow() + knightMove[0] <= 8 &&
+                            1 <= myPosition.getColumn() + knightMove[1] && myPosition.getColumn() + knightMove[1] <= 8) {
+                        targets.add(new ChessPosition(myPosition.getRow() + knightMove[0],
+                                    myPosition.getColumn() + knightMove[1]));
+                    }
+                }
+            }
+            case PAWN -> {
+                int forward = color == ChessGame.TeamColor.WHITE ? 1 : -1;
+                targets.add(new ChessPosition(myPosition.getRow() + forward, myPosition.getColumn()-1));
+                targets.add(new ChessPosition(myPosition.getRow() + forward, myPosition.getColumn()));
+                targets.add(new ChessPosition(myPosition.getRow() + forward, myPosition.getColumn()+1));
+            }
+        }
+        return targets;
+    }
 }
