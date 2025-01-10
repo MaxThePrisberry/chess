@@ -114,6 +114,28 @@ public class ChessGame {
         return targetedSquares.contains(kingLocation);
     }
 
+    private boolean possibleSacrifice(ChessPosition targetPosition, TeamColor teamColor) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    if (piece.pieceTargets(board, position).contains(targetPosition)) {
+                        ChessPiece tmp = board.getPiece(targetPosition);
+                        board.addPiece(targetPosition, piece);
+                        board.clearPiece(position);
+                        if (!isInCheck(teamColor)) {
+                            return true;
+                        }
+                        board.addPiece(position, piece);
+                        board.addPiece(targetPosition, tmp);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -132,9 +154,16 @@ public class ChessGame {
                     1 <= kingLocation.getColumn() + xdirs[i] && kingLocation.getColumn() + xdirs[i] <= 8) {
                 ChessPosition position = new ChessPosition(kingLocation.getRow() + ydirs[i],
                         kingLocation.getColumn() + xdirs[i]);
+                ChessPiece target = board.getPiece(position);
                 if (!targetedSquares.contains(position)) {
-                    ChessPiece target = board.getPiece(position);
-                    if (target == null || target.getTeamColor() == (teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE)) {
+                    target = board.getPiece(position);
+                    if (target == null) {
+                        return false;
+                    }
+                } else {
+                    if (target != null &&
+                            target.getTeamColor() == (teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE)
+                            && possibleSacrifice(position, teamColor)) {
                         return false;
                     }
                 }
