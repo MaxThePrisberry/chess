@@ -75,8 +75,8 @@ public class ChessGame {
 
     private ChessPosition getKingLocation(TeamColor teamColor) {
         ChessPosition kingLocation = null;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(i, j));
                 if (piece != null && piece.getTeamColor() == teamColor &&
                         piece.getPieceType() == ChessPiece.PieceType.KING) {
@@ -89,8 +89,8 @@ public class ChessGame {
 
     private Collection<ChessPosition> getTargetedSquares(TeamColor teamColor) {
         List<ChessMove> moves = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
                 if (piece != null && piece.getTeamColor() == teamColor) {
@@ -113,20 +113,9 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingLocation = getKingLocation(teamColor);
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = board.getPiece(position);
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    for (ChessMove move : piece.pieceMoves(board, position)) {
-                        if (kingLocation == move.getEndPosition()) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        Collection<ChessPosition> targetedSquares = getTargetedSquares(
+                teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+        return targetedSquares.contains(kingLocation);
     }
 
     /**
