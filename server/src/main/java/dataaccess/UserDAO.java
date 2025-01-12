@@ -19,7 +19,7 @@ public class UserDAO {
                 return user;
             }
         }
-        throw new DataAccessException(1, "getUser Error: No user with given username");
+        throw new DataAccessException("getUser Error: No user with given username");
     }
 
     public void deleteUser(String username) {

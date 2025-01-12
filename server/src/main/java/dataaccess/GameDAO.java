@@ -20,7 +20,7 @@ public class GameDAO {
                 return game;
             }
         }
-        throw new DataAccessException(3, "getGame Error: No game with given gameID");
+        throw new DataAccessException("getGame Error: No game with given gameID");
     }
 
     public Set<GameData> listGames() {
