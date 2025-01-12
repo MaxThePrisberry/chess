@@ -9,9 +9,12 @@ import java.util.Set;
 public class GameDAO {
 
     private Set<GameData> database = new HashSet<>();
+    private int gameIDCounter = 1;
 
-    public void createGame(int gameID, String whiteUsername, String blackUsername, String gameName, String game) {
-        database.add(new GameData(gameID, whiteUsername, blackUsername, gameName, game));
+    public int createGame(String whiteUsername, String blackUsername, String gameName, ChessGame game) {
+        database.add(new GameData(gameIDCounter, whiteUsername, blackUsername, gameName, game));
+        gameIDCounter++;
+        return gameIDCounter - 1;
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
@@ -31,7 +34,7 @@ public class GameDAO {
         database.removeIf(game -> game.gameID() == gameID);
     }
 
-    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, String game) throws DataAccessException {
+    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         deleteGame(gameID);
         database.add(new GameData(gameID, whiteUsername, blackUsername, gameName, game));
     }
