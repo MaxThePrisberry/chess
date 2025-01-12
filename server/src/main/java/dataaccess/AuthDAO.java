@@ -19,7 +19,7 @@ public class AuthDAO {
                 return auth;
             }
         }
-        throw new DataAccessException("getAuth Error: No AuthData with given authToken");
+        throw new DataAccessException(2, "getAuth Error: No AuthData with given authToken");
     }
 
     public void deleteAuth(String authToken) {
