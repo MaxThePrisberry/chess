@@ -31,13 +31,13 @@ public class GameService {
         try {
             AuthData auth = authDAO.getAuth(request.authToken());
             GameData game = gameDAO.getGame(request.gameID());
-            if (game.blackUsername() != null && game.whiteUsername() != null) {
-                throw new IllegalStateException("Error: no space for third player in chess game");
-            } else if ((request.playerColor().equals("WHITE") ? game.whiteUsername() : game.blackUsername()) != null) {
-                throw new IllegalStateException("Error: player color '" + request.playerColor() + "' is already taken");
+            if ((request.playerColor().equals("WHITE") ? game.whiteUsername() : game.blackUsername()) != null) {
+                throw new IllegalStateException("Error: already taken");
             }
             if (request.playerColor().equals("WHITE")) {
                 gameDAO.updateGame(request.gameID(), auth.username(), game.blackUsername(), game.gameName(), game.game());
+            } else {
+                gameDAO.updateGame(request.gameID(), game.whiteUsername(), auth.username(), game.gameName(), game.game());
             }
         } catch (DataAccessException e) {
             switch (e.getMessage()) {
@@ -49,7 +49,7 @@ public class GameService {
                 }
             }
         } catch (IllegalStateException e) {
-            throw new HandlerTargetedException(409, e.getMessage());
+            throw new HandlerTargetedException(403, e.getMessage());
         }
     }
 }
