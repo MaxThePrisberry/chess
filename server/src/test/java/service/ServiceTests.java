@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.HandlerTargetedException;
+import org.eclipse.jetty.util.log.Log;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.model.*;
@@ -133,5 +134,26 @@ public class ServiceTests {
         assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
         assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "BLACK", 1)));
         assertThrows(HandlerTargetedException.class, () -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+    }
+
+    @Test
+    @DisplayName("Clear Positive Test")
+    void clearTest() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        service.register(new RegisterRequest("Tasha", "KN11", "spam@gmail.nope"));
+        service.register(new RegisterRequest("OIJSDF", "Greenish", "m@g"));
+
+        service.createGame(new CreateGameRequest(user.authToken(), "Game 1"));
+        service.createGame(new CreateGameRequest(user.authToken(), "Game 2"));
+
+        assertDoesNotThrow(() -> service.clear());
+
+        user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+
+        assertThrows(HandlerTargetedException.class, () -> service.login(new LoginRequest("Tasha", "KN11")));
+
+        ListGamesResult result = service.listGames(new ListGamesRequest(user.authToken()));
+
+        assertTrue(result.games().isEmpty());
     }
 }
