@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dataaccess.HandlerTargetedException;
 import service.Phase3MasterService;
+import service.model.LoginRequest;
 import service.model.RegisterRequest;
 import service.model.UserDataResult;
 import spark.Request;
@@ -29,8 +30,7 @@ public class ChessHandler {
 
     public String register(Request req, Response res) {
         String message;
-        String body = req.body();
-        Map<String, String> request = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
+        Map<String, String> request = gson.fromJson(req.body(), new TypeToken<Map<String, String>>(){}.getType());
         if (request.get("username") == null || request.get("username").isBlank() ||
                 request.get("password") == null || request.get("password").isBlank() ||
                 request.get("email") == null || request.get("email").isBlank()) {
@@ -47,13 +47,32 @@ public class ChessHandler {
             return gson.toJson(message);
         } catch (Exception e) {
             res.status(500);
-            message = e.getMessage();
+            message = "Error: " + e.getMessage();
             return gson.toJson(message);
         }
     }
 
     public String login(Request req, Response res) {
-
+        String message;
+        Map<String, String> request = gson.fromJson(req.body(), new TypeToken<Map<String, String>>(){}.getType());
+        if (request.get("username") == null || request.get("username").isBlank() ||
+                request.get("password") == null || request.get("password").isBlank()) {
+            res.status(400);
+            message = "Error: bad request";
+            return gson.toJson(message);
+        }
+        try {
+            UserDataResult user = service.login(new LoginRequest(request.get("username"), request.get("password")));
+            return gson.toJson(user);
+        } catch (HandlerTargetedException e) {
+            res.status(e.getErrorNumber());
+            message = e.getMessage();
+            return gson.toJson(message);
+        } catch (Exception e) {
+            res.status(500);
+            message = "Error: " + e.getMessage();
+            return gson.toJson(message);
+        }
     }
 
     public String logout(Request req, Response res) {
