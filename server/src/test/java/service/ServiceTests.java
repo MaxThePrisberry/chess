@@ -3,10 +3,7 @@ package service;
 import dataaccess.HandlerTargetedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.model.LoginRequest;
-import service.model.LogoutRequest;
-import service.model.RegisterRequest;
-import service.model.UserDataResult;
+import service.model.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,12 +14,14 @@ public class ServiceTests {
     @Test
     @DisplayName("Register Positive Test")
     void registerValidUser() throws HandlerTargetedException {
-        service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        UserDataResult user = assertDoesNotThrow(() -> service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com")));
+        assertFalse(user.authToken().isBlank());
+        assertEquals("Maxwell", user.username());
     }
 
     @Test
     @DisplayName("Register Repeat User")
-    void registerNullValue() throws HandlerTargetedException {
+    void registerRepeatUser() throws HandlerTargetedException {
         //Register first user
         service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
 
@@ -34,7 +33,6 @@ public class ServiceTests {
     @DisplayName("Login Positive Test")
     void loginValid() throws HandlerTargetedException {
         service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
-
         assertDoesNotThrow(() -> service.login(new LoginRequest("Maxwell", "Pr1sbrey")));
     }
 
@@ -42,7 +40,6 @@ public class ServiceTests {
     @DisplayName("Login Incorrect Password")
     void loginBadPassword() throws HandlerTargetedException {
         service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
-
         assertThrows(HandlerTargetedException.class, () -> service.login(new LoginRequest("Maxwell", "Incorrect")));
     }
 
@@ -50,7 +47,6 @@ public class ServiceTests {
     @DisplayName("Login Nonexistent User")
     void loginUnregisteredUser() throws HandlerTargetedException {
         service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
-
         assertThrows(HandlerTargetedException.class, () -> service.login(new LoginRequest("Nathan", "Incorrect")));
     }
 
@@ -64,7 +60,7 @@ public class ServiceTests {
     @Test
     @DisplayName("Logout Nonexistent User Filled Database")
     void logoutBadFilled() throws HandlerTargetedException {
-        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
         assertThrows(HandlerTargetedException.class, () -> service.logout(new LogoutRequest("Faked authToken")));
     }
 
@@ -75,5 +71,67 @@ public class ServiceTests {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("List Games Positive Test")
+    void listGamesValid() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        ListGamesResult result = assertDoesNotThrow(() -> service.listGames(new ListGamesRequest(user.authToken())));
+        assertTrue(result.games().isEmpty());
+    }
+
+    @Test
+    @DisplayName("List Games Invalid Auth")
+    void listGamesInvalidAuth() {
+        assertThrows(HandlerTargetedException.class, () -> service.listGames(new ListGamesRequest("HahaPotato")));
+    }
+
+    @Test
+    @DisplayName("Create Game Positive Test")
+    void createGameValid() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        CreateGameResult result = assertDoesNotThrow(() -> service.createGame(new CreateGameRequest(user.authToken(), "fakeGame")));
+        assertEquals(1, result.gameID());
+
+        result = assertDoesNotThrow(() -> service.createGame(new CreateGameRequest(user.authToken(), "fakeGame")));
+        assertEquals(2, result.gameID());
+    }
+
+    @Test
+    @DisplayName("Create Game Invalid Auth")
+    void createGameInvalidAuth() {
+        assertThrows(HandlerTargetedException.class, () -> service.createGame(new CreateGameRequest("FakeAuth", "fakeGame")));
+    }
+
+    @Test
+    @DisplayName("Join Game Positive Test")
+    void joinGameValid() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        service.createGame(new CreateGameRequest(user.authToken(), "Game 1"));
+        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+    }
+
+    @Test
+    @DisplayName("Join Nonexistent Game")
+    void joinGhostGame() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        assertThrows(HandlerTargetedException.class, () -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+    }
+
+    @Test
+    @DisplayName("Join Game Side Taken")
+    void joinGameOccupied() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        service.createGame(new CreateGameRequest(user.authToken(), "Game 1"));
+        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+        assertThrows(HandlerTargetedException.class, () -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+    }
+
+    @Test
+    @DisplayName("Join Full Game")
+    void joinGameFull() throws HandlerTargetedException {
+        UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
+        service.createGame(new CreateGameRequest(user.authToken(), "Game 1"));
+        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "BLACK", 1)));
+        assertThrows(HandlerTargetedException.class, () -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
+    }
 }
