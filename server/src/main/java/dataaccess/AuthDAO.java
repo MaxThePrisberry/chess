@@ -26,7 +26,7 @@ public class AuthDAO {
         database.removeIf(auth -> auth.authToken().equals(authToken));
     }
 
-    public void deleteAllAuth() {
+    public void clear() {
         database.clear();
     }
 }
