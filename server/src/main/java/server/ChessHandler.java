@@ -1,11 +1,23 @@
 package server;
 
+import com.google.gson.Gson;
+import service.Phase3MasterService;
 import spark.Request;
 import spark.Response;
 
 public class ChessHandler {
-    public String clear(Request req, Response res) {
+    private final Gson gson = new Gson();
 
+    private Phase3MasterService service = new Phase3MasterService();
+
+    public String clear(Request req, Response res) {
+        try {
+            service.clear();
+        } catch (Exception e) {
+            String message = "Error: " + e.getMessage();
+            return gson.toJson(message);
+        }
+        return "{}";
     }
 
     public String register(Request req, Response res) {
