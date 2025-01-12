@@ -2,17 +2,12 @@ package dataaccess;
 
 import model.AuthData;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class AuthDAO {
-
-    private Set<AuthData> database = new HashSet<>();
 
     public AuthDAO() {
         try (Connection conn = DatabaseManager.getConnection()) {
