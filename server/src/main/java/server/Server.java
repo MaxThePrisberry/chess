@@ -1,5 +1,7 @@
 package server;
 
+import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import spark.*;
 
 public class Server {
@@ -8,6 +10,12 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error connecting to database on Server startup: " + e.getMessage());
+        }
 
         ChessHandler handler = new ChessHandler();
 
