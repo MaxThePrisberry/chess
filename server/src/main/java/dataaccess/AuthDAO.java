@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,43 +21,77 @@ public class AuthDAO {
                         auth_token VARCHAR(255) NOT NULL,
                         username VARCHAR(50) NOT NULL UNIQUE
             );""")) {
-                statement.executeQuery();
+                statement.executeUpdate();
             }
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void createAuth(String authToken, String username) throws DataAccessException {
+    public void createAuth(String authToken, String username) {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("INSERT INTO users (auth_token, username) " +
-                    "VALUES ('?', '?');")) {
+            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM users " +
+                    "WHERE username = ?;")) {
+                statement.setString(1, username);
+                ResultSet res = statement.executeQuery();
+                if (res.next()) {
+                    try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE users SET auth_token =" +
+                            " ? WHERE username = ?;")) {
+                        updateStatement.setString(1, authToken);
+                        updateStatement.setString(2, username);
+                        updateStatement.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO users (auth_token, username) " +
+                            "VALUES (?, ?);")) {
+                        createStatement.setString(1, authToken);
+                        createStatement.setString(2, username);
+                        createStatement.executeUpdate();
+                    }
+                }
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()){
+            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM users " +
+                    "WHERE auth_token = ?;")) {
                 statement.setString(1, authToken);
-                statement.setString(2, username);
-                statement.executeQuery();
+                ResultSet res = statement.executeQuery();
+                if (res.next()) {
+                    return new AuthData(res.getString("auth_token"), res.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        throw new DataAccessException("getAuth Error: No AuthData with given authToken");
+    }
+
+    public void deleteAuth(String authToken) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()){
+            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM users WHERE auth_token = ?;")) {
+                statement.setString(1, authToken);
+                int res = statement.executeUpdate();
+                if (res == 0) {
+                    throw new DataAccessException("deleteAuth Error: No AuthData with given authToken");
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public AuthData getAuth(String authToken) throws DataAccessException {
-        for (AuthData auth : database) {
-            if (auth.authToken().equals(authToken)) {
-                return auth;
-            }
-        }
-        throw new DataAccessException("getAuth Error: No AuthData with given authToken");
-    }
-
-    public void deleteAuth(String authToken) throws DataAccessException {
-        if (database.stream().noneMatch(auth -> auth.authToken().equals(authToken))) {
-            throw new DataAccessException("deleteAuth Error: No AuthData with given authToken");
-        }
-        database.removeIf(auth -> auth.authToken().equals(authToken));
-    }
-
     public void clear() {
-        database.clear();
+        try (Connection conn = DatabaseManager.getConnection()){
+            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
+                statement.executeUpdate();
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
