@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dataaccess.HandlerTargetedException;
 import service.Phase3MasterService;
-import service.model.LoginRequest;
-import service.model.LogoutRequest;
-import service.model.RegisterRequest;
-import service.model.UserDataResult;
+import service.model.*;
 import spark.Request;
 import spark.Response;
 
@@ -99,14 +96,74 @@ public class ChessHandler {
     }
 
     public String listGames(Request req, Response res) {
-
+        String message;
+        String authToken = req.headers("authorization");
+        if (authToken == null || authToken.isBlank()) {
+            res.status(400);
+            message = "Error: bad request";
+            return gson.toJson(message);
+        }
+        try {
+            ListGamesResult games = service.listGames(new ListGamesRequest(authToken));
+            return gson.toJson(games);
+        } catch (HandlerTargetedException e) {
+            res.status(e.getErrorNumber());
+            message = e.getMessage();
+            return gson.toJson(message);
+        } catch (Exception e) {
+            res.status(500);
+            message = "Error: " + e.getMessage();
+            return gson.toJson(message);
+        }
     }
 
     public String createGame(Request req, Response res) {
-
+        String message;
+        String authToken = req.headers("authorization");
+        Map<String, String> request = gson.fromJson(req.body(), new TypeToken<Map<String, String>>(){}.getType());
+        if (authToken == null || authToken.isBlank() ||
+                request.get("gameName") == null || request.get("gameName").isBlank()) {
+            res.status(400);
+            message = "Error: bad request";
+            return gson.toJson(message);
+        }
+        try {
+            CreateGameResult serviceResult = service.createGame(new CreateGameRequest(authToken, request.get("gameName")));
+            return gson.toJson(serviceResult);
+        } catch (HandlerTargetedException e) {
+            res.status(e.getErrorNumber());
+            message = e.getMessage();
+            return gson.toJson(message);
+        } catch (Exception e) {
+            res.status(500);
+            message = "Error: " + e.getMessage();
+            return gson.toJson(message);
+        }
     }
 
     public String joinGame(Request req, Response res) {
-
+        String message;
+        String authToken = req.headers("authorization");
+        Map<String, String> request = gson.fromJson(req.body(), new TypeToken<Map<String, String>>(){}.getType());
+        if ((authToken == null || authToken.isBlank() ||
+                request.get("playerColor") == null || request.get("playerColor").isBlank() ||
+                request.get("gameID") == null || request.get("gameID").isBlank()) ||
+                !(request.get("playerColor").equals("WHITE") || request.get("playerColor").equals("BLACK"))) {
+            res.status(400);
+            message = "Error: bad request";
+            return gson.toJson(message);
+        }
+        try {
+            service.joinGame(new JoinGameRequest(authToken, request.get("playerColor"), Integer.parseInt(request.get("gameID"))));
+            return "{}";
+        } catch (HandlerTargetedException e) {
+            res.status(e.getErrorNumber());
+            message = e.getMessage();
+            return gson.toJson(message);
+        } catch (Exception e) {
+            res.status(500);
+            message = "Error: " + e.getMessage();
+            return gson.toJson(message);
+        }
     }
 }
