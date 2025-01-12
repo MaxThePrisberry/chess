@@ -41,7 +41,11 @@ public class UserService {
         }
     }
 
-    public void logout(LogoutRequest request, AuthDAO authDAO) {
-        authDAO.deleteAuth(request.authToken());
+    public void logout(LogoutRequest request, AuthDAO authDAO) throws HandlerTargetedException {
+        try {
+            authDAO.deleteAuth(request.authToken());
+        } catch (DataAccessException e) {
+            throw new HandlerTargetedException(401, "Error: unauthorized");
+        }
     }
 }

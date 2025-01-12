@@ -22,7 +22,10 @@ public class AuthDAO {
         throw new DataAccessException("getAuth Error: No AuthData with given authToken");
     }
 
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws DataAccessException {
+        if (database.stream().noneMatch(auth -> auth.authToken().equals(authToken))) {
+            throw new DataAccessException("deleteAuth Error: No AuthData with given authToken");
+        }
         database.removeIf(auth -> auth.authToken().equals(authToken));
     }
 

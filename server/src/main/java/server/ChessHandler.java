@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import dataaccess.HandlerTargetedException;
 import service.Phase3MasterService;
 import service.model.LoginRequest;
+import service.model.LogoutRequest;
 import service.model.RegisterRequest;
 import service.model.UserDataResult;
 import spark.Request;
@@ -76,7 +77,25 @@ public class ChessHandler {
     }
 
     public String logout(Request req, Response res) {
-
+        String message;
+        String authToken = req.headers("authorization");
+        if (authToken == null || authToken.isBlank()) {
+            res.status(400);
+            message = "Error: bad request";
+            return gson.toJson(message);
+        }
+        try {
+            service.logout(new LogoutRequest(authToken));
+            return "{}";
+        } catch (HandlerTargetedException e) {
+            res.status(e.getErrorNumber());
+            message = e.getMessage();
+            return gson.toJson(message);
+        } catch (Exception e) {
+            res.status(500);
+            message = "Error: " + e.getMessage();
+            return gson.toJson(message);
+        }
     }
 
     public String listGames(Request req, Response res) {

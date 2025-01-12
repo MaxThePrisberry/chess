@@ -33,7 +33,7 @@ public class Phase3MasterService {
         return userService.login(request, userDAO, authDAO);
     }
 
-    public void logout(LogoutRequest request) {
+    public void logout(LogoutRequest request) throws HandlerTargetedException {
         userService.logout(request, authDAO);
     }
 
