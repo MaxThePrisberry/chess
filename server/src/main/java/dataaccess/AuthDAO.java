@@ -12,7 +12,7 @@ public class AuthDAO {
     public AuthDAO() {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement("""
-                    CREATE TABLE IF NOT EXISTS users (
+                    CREATE TABLE IF NOT EXISTS auths (
                         auth_token VARCHAR(255) NOT NULL,
                         username VARCHAR(50) NOT NULL UNIQUE
             );""")) {
@@ -25,19 +25,19 @@ public class AuthDAO {
 
     public void createAuth(String authToken, String username) {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM users " +
+            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM auths " +
                     "WHERE username = ?;")) {
                 statement.setString(1, username);
                 ResultSet res = statement.executeQuery();
                 if (res.next()) {
-                    try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE users SET auth_token =" +
+                    try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE auths SET auth_token =" +
                             " ? WHERE username = ?;")) {
                         updateStatement.setString(1, authToken);
                         updateStatement.setString(2, username);
                         updateStatement.executeUpdate();
                     }
                 } else {
-                    try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO users (auth_token, username) " +
+                    try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO auths (auth_token, username) " +
                             "VALUES (?, ?);")) {
                         createStatement.setString(1, authToken);
                         createStatement.setString(2, username);
@@ -52,7 +52,7 @@ public class AuthDAO {
 
     public AuthData getAuth(String authToken) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM users " +
+            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM auths " +
                     "WHERE auth_token = ?;")) {
                 statement.setString(1, authToken);
                 ResultSet res = statement.executeQuery();
@@ -68,7 +68,7 @@ public class AuthDAO {
 
     public void deleteAuth(String authToken) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM users WHERE auth_token = ?;")) {
+            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM auths WHERE auth_token = ?;")) {
                 statement.setString(1, authToken);
                 int res = statement.executeUpdate();
                 if (res == 0) {
@@ -82,7 +82,7 @@ public class AuthDAO {
 
     public void clear() {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
+            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE auths;")) {
                 statement.executeUpdate();
             }
         } catch (DataAccessException | SQLException e) {
