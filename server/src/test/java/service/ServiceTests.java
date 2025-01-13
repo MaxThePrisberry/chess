@@ -1,7 +1,8 @@
 package service;
 
+import dataaccess.DatabaseManager;
 import dataaccess.HandlerTargetedException;
-import org.eclipse.jetty.util.log.Log;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.model.*;
@@ -11,6 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServiceTests {
 
     private Phase3MasterService service = new Phase3MasterService();
+
+    @BeforeEach
+    void setUp() {
+        service.clear();
+    }
 
     @Test
     @DisplayName("Register Positive Test")
