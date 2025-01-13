@@ -114,13 +114,27 @@ public class DOATests {
     }
 
     @Test
+    @DisplayName("Get User With Nonexistent User")
+    void getUserNonexistent() {
+        assertThrows(DataAccessException.class, () -> UserDAO.getUser("Carrot"));
+        UserDAO.createUser("Potato", "Farmer", "a@us.f");
+        assertThrows(DataAccessException.class, () -> UserDAO.getUser("Carrot"));
+    }
+
+    @Test
     @DisplayName("Create User Valid Test")
     void createUserValid() throws DataAccessException {
         UserDAO.createUser("Potato", "Farmer", "a@us.f");
         UserData user = UserDAO.getUser("Potato");
-        assertEquals("Potato", "username");
-        assertEquals("Farmer", "password");
-        assertEquals("a@us.f", "email");
+        assertEquals("Potato", user.username());
+        assertEquals("Farmer", user.password());
+        assertEquals("a@us.f", user.email());
+    }
+
+    @Test
+    @DisplayName("Create User Invalid Inputs")
+    void createUserInvalidInputs() {
+        assertThrows(RuntimeException.class, () -> UserDAO.createUser(null, null, null));
     }
 
     
