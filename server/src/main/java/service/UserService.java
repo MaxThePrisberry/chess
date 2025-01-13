@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.HandlerTargetedException;
 import dataaccess.UserDAO;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.model.LoginRequest;
 import service.model.LogoutRequest;
 import service.model.RegisterRequest;
@@ -18,7 +19,7 @@ public class UserService {
         try {
             UserData user = userDAO.getUser(request.username());
         } catch (DataAccessException e) {
-            userDAO.createUser(request.username(), request.password(), request.email());
+            userDAO.createUser(request.username(), BCrypt.hashpw(request.password(), BCrypt.gensalt()), request.email());
             String authToken = UUID.randomUUID().toString();
             authDAO.createAuth(authToken, request.username());
             return new UserDataResult(request.username(), authToken);
@@ -30,7 +31,7 @@ public class UserService {
         UserData user;
         try {
             user = userDAO.getUser(request.username());
-            if (!user.password().equals(request.password())) {
+            if (!BCrypt.checkpw(request.password(), user.password())) {
                 throw new AuthenticationException("Error: passwords do not match");
             }
             String authToken = UUID.randomUUID().toString();
