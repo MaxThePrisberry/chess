@@ -136,9 +136,9 @@ public class ServiceTests {
     @DisplayName("Join Full Game")
     void joinGameFull() throws HandlerTargetedException {
         UserDataResult user = service.register(new RegisterRequest("Maxwell", "Pr1sbrey", "spam@gmail.com"));
-        service.createGame(new CreateGameRequest(user.authToken(), "Game 1"));
-        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
-        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "BLACK", 1)));
+        CreateGameResult result = service.createGame(new CreateGameRequest(user.authToken(), "Game 1"));
+        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", result.gameID())));
+        assertDoesNotThrow(() -> service.joinGame(new JoinGameRequest(user.authToken(), "BLACK", result.gameID())));
         assertThrows(HandlerTargetedException.class, () -> service.joinGame(new JoinGameRequest(user.authToken(), "WHITE", 1)));
     }
 
