@@ -35,7 +35,7 @@ public class DOATests {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE auths;")) {
                 statement.executeUpdate();
-            } catch (SQLException e) {}
+            } catch (SQLException ignored) {}
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE games;")) {
                 statement.executeUpdate();
             }
@@ -86,6 +86,4 @@ public class DOATests {
 
         assertEmpty();
     }
-
-    
 }
