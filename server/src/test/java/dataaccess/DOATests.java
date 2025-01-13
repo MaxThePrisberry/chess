@@ -1,10 +1,13 @@
 package dataaccess;
 
 import chess.ChessGame;
+import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.model.UserDataResult;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
@@ -86,4 +89,39 @@ public class DOATests {
 
         assertEmpty();
     }
+
+    @Test
+    @DisplayName("Get User Positive Test")
+    void getUserValid() {
+        UserDAO.createUser("Potato", "Farmer", "a@us.f");
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement statement = conn.prepareStatement("SELECT COUNT(*) FROM users;")) {
+                ResultSet res = statement.executeQuery();
+                res.next();
+                assertEquals(1, res.getInt(1));
+            }
+            try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM users WHERE username = ?;")) {
+                statement.setString(1, "Potato");
+                ResultSet res = statement.executeQuery();
+                res.next();
+                assertEquals("Potato", res.getString("username"));
+                assertEquals("Farmer", res.getString("password"));
+                assertEquals("a@us.f", res.getString("email"));
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Create User Valid Test")
+    void createUserValid() throws DataAccessException {
+        UserDAO.createUser("Potato", "Farmer", "a@us.f");
+        UserData user = UserDAO.getUser("Potato");
+        assertEquals("Potato", "username");
+        assertEquals("Farmer", "password");
+        assertEquals("a@us.f", "email");
+    }
+
+    
 }
