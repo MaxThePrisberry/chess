@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
@@ -195,5 +196,37 @@ public class DOATests {
     @DisplayName("Delete Nonexistent Auth")
     void deleteNonexistentAuth() {
         assertThrows(DataAccessException.class, () -> AuthDAO.deleteAuth("nonexistent"));
+    }
+
+    @Test
+    @DisplayName("Create Game Valid Test")
+    void createGameValid() {
+        Gson gson = new Gson();
+        ChessGame game = new ChessGame();
+        GameDAO.createGame("Potato", "Carrot", "Fruit Fight", game);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement statement = conn.prepareStatement("SELECT COUNT(*) FROM games;")) {
+                ResultSet res = statement.executeQuery();
+                res.next();
+                assertEquals(1, res.getInt(1));
+            }
+            try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM games WHERE game_id = ?;")) {
+                statement.setInt(1, 1);
+                ResultSet res = statement.executeQuery();
+                res.next();
+                assertEquals("Potato", res.getString("white_username"));
+                assertEquals("Carrot", res.getString("black_username"));
+                assertEquals("Fruit Fight", res.getString("game_name"));
+                assertEquals(gson.toJson(game), res.getString("chess_game"));
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Create Game Invalid Inputs")
+    void createGameInvalidInputs() {
+        assertThrows(RuntimeException.class, () -> GameDAO.createGame(null, null, null, null));
     }
 }

@@ -33,10 +33,7 @@ public class GameDAO {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO games (white_username, " +
                     "black_username, game_name, chess_game) VALUES (?, ?, ?, ?);", PreparedStatement.RETURN_GENERATED_KEYS)) {
-                createStatement.setNull(1, Types.VARCHAR);
-                createStatement.setNull(2, Types.VARCHAR);
-                createStatement.setString(3, gameName);
-                createStatement.setString(4, gson.toJson(game));
+                handleNullUsernames(whiteUsername, blackUsername, gameName, game, createStatement);
                 createStatement.executeUpdate();
 
                 ResultSet res = createStatement.getGeneratedKeys();
@@ -46,6 +43,21 @@ public class GameDAO {
         } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void handleNullUsernames(String whiteUsername, String blackUsername, String gameName, ChessGame game, PreparedStatement createStatement) throws SQLException {
+        if (whiteUsername == null) {
+            createStatement.setNull(1, Types.VARCHAR);
+        } else {
+            createStatement.setString(1, whiteUsername);
+        }
+        if (blackUsername == null) {
+            createStatement.setNull(2, Types.VARCHAR);
+        } else {
+            createStatement.setString(2, blackUsername);
+        }
+        createStatement.setString(3, gameName);
+        createStatement.setString(4, gson.toJson(game));
     }
 
     public static GameData getGame(int gameID) throws DataAccessException {
@@ -103,20 +115,7 @@ public class GameDAO {
                 ResultSet res = statement.executeQuery();
                 if (res.next()) {
                     try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE games SET white_username = ?, black_username = ?, game_name = ?, chess_game = ? WHERE game_id = ?;")) {
-                        if (whiteUsername == null) {
-                            updateStatement.setNull(1, Types.VARCHAR);
-                        } else {
-                            updateStatement.setString(1, whiteUsername);
-                        }
-                        if (blackUsername == null) {
-                            updateStatement.setNull(2, Types.VARCHAR);
-                        } else {
-                            updateStatement.setString(2, blackUsername);
-                        }
-
-
-                        updateStatement.setString(3, gameName);
-                        updateStatement.setString(4, gson.toJson(game));
+                        handleNullUsernames(whiteUsername, blackUsername, gameName, game, updateStatement);
                         updateStatement.setInt(5, gameID);
                         updateStatement.executeUpdate();
                     }
