@@ -3,12 +3,12 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.model.UserDataResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -228,5 +228,23 @@ public class DOATests {
     @DisplayName("Create Game Invalid Inputs")
     void createGameInvalidInputs() {
         assertThrows(RuntimeException.class, () -> GameDAO.createGame(null, null, null, null));
+    }
+
+    @Test
+    @DisplayName("Get Game Valid Test")
+    void getGameValid() throws DataAccessException {
+        ChessGame chess_game = new ChessGame();
+        int gameID = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
+        GameData game = GameDAO.getGame(gameID);
+        assertEquals("Potato", game.whiteUsername());
+        assertEquals("Carrot", game.blackUsername());
+        assertEquals("Fruit Fight", game.gameName());
+        assertEquals(chess_game, game.game());
+    }
+
+    @Test
+    @DisplayName("Get Nonexistent Game")
+    void getNonexistentGame() {
+        assertThrows(DataAccessException.class, () -> GameDAO.getGame(1));
     }
 }

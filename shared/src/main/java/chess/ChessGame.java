@@ -37,6 +37,20 @@ public class ChessGame {
         turnColor = team;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return turnColor == chessGame.turnColor && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(turnColor, board);
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
