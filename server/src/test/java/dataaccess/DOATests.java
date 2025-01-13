@@ -1,6 +1,9 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -264,5 +267,31 @@ public class DOATests {
         Set<GameData> actual = assertDoesNotThrow(GameDAO::listGames);
 
         assertEquals(expected, actual);
+    }
+
+    @Test
+    @DisplayName("Update Game Valid Test")
+    void updateGameValid() throws InvalidMoveException, DataAccessException {
+        ChessGame chess_game = new ChessGame();
+        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
+
+        chess_game.makeMove(new ChessMove(new ChessPosition(2, 5), new ChessPosition(4, 5), null));
+        assertDoesNotThrow(() -> GameDAO.updateGame(gameID1, "Peanut Butter", "Celery", "Banana Bowl", chess_game));
+
+        GameData game = GameDAO.getGame(gameID1);
+
+        assertEquals("Peanut Butter", game.whiteUsername());
+        assertEquals("Celery", game.blackUsername());
+        assertEquals("Banana Bowl", game.gameName());
+        assertEquals(chess_game, game.game());
+    }
+
+    @Test
+    @DisplayName("Update Game Invalid Inputs")
+    void updateGameInvalidInputs() throws InvalidMoveException {
+        ChessGame chess_game = new ChessGame();
+        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
+
+        assertThrows(RuntimeException.class, () -> GameDAO.updateGame(gameID1, null, "Celery", null, null));
     }
 }

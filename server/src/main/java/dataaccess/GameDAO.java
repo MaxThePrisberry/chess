@@ -93,20 +93,6 @@ public class GameDAO {
         }
     }
 
-    public static void deleteGame(int gameID) {
-        try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM games WHERE game_id = ?;")) {
-                statement.setInt(1, gameID);
-                int res = statement.executeUpdate();
-                if (res == 0) {
-                    throw new DataAccessException("deleteAuth Error: No AuthData with given authToken");
-                }
-            }
-        } catch (DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT game_id FROM games " +
