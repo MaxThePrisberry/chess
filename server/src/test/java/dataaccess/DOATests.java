@@ -183,4 +183,17 @@ public class DOATests {
     void createAuthInvalidInputs() {
         assertThrows(RuntimeException.class, () -> AuthDAO.createAuth(null, null));
     }
+
+    @Test
+    @DisplayName("Delete Auth Valid Test")
+    void deleteAuthValid() {
+        AuthDAO.createAuth("fakeAuthToken", "Potato");
+        assertDoesNotThrow(() -> AuthDAO.deleteAuth("fakeAuthToken"));
+    }
+
+    @Test
+    @DisplayName("Delete Nonexistent Auth")
+    void deleteNonexistentAuth() {
+        assertThrows(DataAccessException.class, () -> AuthDAO.deleteAuth("nonexistent"));
+    }
 }
