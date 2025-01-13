@@ -3,16 +3,14 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
-import model.UserData;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
 public class GameDAO {
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     public GameDAO() {
         try (Connection conn = DatabaseManager.getConnection()) {

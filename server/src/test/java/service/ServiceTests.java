@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.DatabaseManager;
 import dataaccess.HandlerTargetedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
