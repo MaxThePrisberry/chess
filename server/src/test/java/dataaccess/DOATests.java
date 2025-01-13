@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -137,5 +138,48 @@ public class DOATests {
         assertThrows(RuntimeException.class, () -> UserDAO.createUser(null, null, null));
     }
 
-    
+    @Test
+    @DisplayName("Get Auth Positive Test")
+    void getAuthValid() throws DataAccessException {
+        AuthDAO.createAuth("fakeAuthToken", "Potato");
+        AuthData auth = AuthDAO.getAuth("fakeAuthToken");
+        assertEquals("Potato", auth.username());
+        assertEquals("fakeAuthToken", auth.authToken());
+    }
+
+    @Test
+    @DisplayName("Get Auth With Nonexistent User")
+    void getAuthNonexistent() {
+        assertThrows(DataAccessException.class, () -> AuthDAO.getAuth("fakeAuthToken"));
+        AuthDAO.createAuth("differentAuthToken", "Potato");
+        assertThrows(DataAccessException.class, () -> AuthDAO.getAuth("fakeAuthToken"));
+    }
+
+    @Test
+    @DisplayName("Create Auth Valid Test")
+    void createAuthValid() {
+        AuthDAO.createAuth("fakeAuthToken", "Potato");
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement statement = conn.prepareStatement("SELECT COUNT(*) FROM auths;")) {
+                ResultSet res = statement.executeQuery();
+                res.next();
+                assertEquals(1, res.getInt(1));
+            }
+            try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM auths WHERE auth_token = ?;")) {
+                statement.setString(1, "fakeAuthToken");
+                ResultSet res = statement.executeQuery();
+                res.next();
+                assertEquals("Potato", res.getString("username"));
+                assertEquals("fakeAuthToken", res.getString("auth_token"));
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Create Auth Invalid Inputs")
+    void createAuthInvalidInputs() {
+        assertThrows(RuntimeException.class, () -> AuthDAO.createAuth(null, null));
+    }
 }
