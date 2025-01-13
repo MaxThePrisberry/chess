@@ -14,7 +14,7 @@ public class AuthDAO {
             try (PreparedStatement statement = conn.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS auths (
                         auth_token VARCHAR(255) NOT NULL,
-                        username VARCHAR(50) NOT NULL UNIQUE
+                        username VARCHAR(50) NOT NULL
             );""")) {
                 statement.executeUpdate();
             }
@@ -25,25 +25,11 @@ public class AuthDAO {
 
     public void createAuth(String authToken, String username) {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM auths " +
-                    "WHERE username = ?;")) {
-                statement.setString(1, username);
-                ResultSet res = statement.executeQuery();
-                if (res.next()) {
-                    try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE auths SET auth_token =" +
-                            " ? WHERE username = ?;")) {
-                        updateStatement.setString(1, authToken);
-                        updateStatement.setString(2, username);
-                        updateStatement.executeUpdate();
-                    }
-                } else {
-                    try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO auths (auth_token, username) " +
-                            "VALUES (?, ?);")) {
-                        createStatement.setString(1, authToken);
-                        createStatement.setString(2, username);
-                        createStatement.executeUpdate();
-                    }
-                }
+            try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO auths (auth_token, username) " +
+                    "VALUES (?, ?);")) {
+                createStatement.setString(1, authToken);
+                createStatement.setString(2, username);
+                createStatement.executeUpdate();
             }
         } catch (DataAccessException | SQLException e) {
             throw new RuntimeException(e);

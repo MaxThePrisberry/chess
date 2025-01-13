@@ -6,10 +6,7 @@ import model.GameData;
 import model.UserData;
 
 import javax.xml.crypto.Data;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,8 +19,8 @@ public class GameDAO {
             try (PreparedStatement statement = conn.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS games (
                         game_id INT AUTO_INCREMENT PRIMARY KEY,
-                        white_username VARCHAR(255) NOT NULL,
-                        black_username VARCHAR(255) NOT NULL,
+                        white_username VARCHAR(255),
+                        black_username VARCHAR(255),
                         game_name VARCHAR(255) NOT NULL,
                         chess_game LONGTEXT NOT NULL
             );""")) {
@@ -38,8 +35,8 @@ public class GameDAO {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO games (white_username, " +
                     "black_username, game_name, chess_game) VALUES (?, ?, ?, ?);", PreparedStatement.RETURN_GENERATED_KEYS)) {
-                createStatement.setString(1, whiteUsername);
-                createStatement.setString(2, blackUsername);
+                createStatement.setNull(1, Types.VARCHAR);
+                createStatement.setNull(2, Types.VARCHAR);
                 createStatement.setString(3, gameName);
                 createStatement.setString(4, gson.toJson(game));
                 createStatement.executeUpdate();
@@ -108,8 +105,18 @@ public class GameDAO {
                 ResultSet res = statement.executeQuery();
                 if (res.next()) {
                     try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE games SET white_username = ?, black_username = ?, game_name = ?, chess_game = ? WHERE game_id = ?;")) {
-                        updateStatement.setString(1, whiteUsername);
-                        updateStatement.setString(2, blackUsername);
+                        if (whiteUsername == null) {
+                            updateStatement.setNull(1, Types.VARCHAR);
+                        } else {
+                            updateStatement.setString(1, whiteUsername);
+                        }
+                        if (blackUsername == null) {
+                            updateStatement.setNull(2, Types.VARCHAR);
+                        } else {
+                            updateStatement.setString(2, blackUsername);
+                        }
+
+
                         updateStatement.setString(3, gameName);
                         updateStatement.setString(4, gson.toJson(game));
                         updateStatement.setInt(5, gameID);
