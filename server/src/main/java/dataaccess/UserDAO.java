@@ -1,18 +1,13 @@
 package dataaccess;
 
-import model.AuthData;
 import model.UserData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class UserDAO {
-
-    private Set<UserData> database = new HashSet<>();
 
     public UserDAO() {
         try (Connection conn = DatabaseManager.getConnection()) {
