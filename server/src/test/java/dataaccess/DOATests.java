@@ -16,6 +16,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DOATests {
 
@@ -246,5 +248,21 @@ public class DOATests {
     @DisplayName("Get Nonexistent Game")
     void getNonexistentGame() {
         assertThrows(DataAccessException.class, () -> GameDAO.getGame(1));
+    }
+
+    @Test
+    @DisplayName("List Games Valid Test")
+    void listGamesValid() {
+        ChessGame chess_game = new ChessGame();
+        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
+        int gameID2 = GameDAO.createGame("Peanut Butter", "Celery", "Banana Bowl", chess_game);
+
+        Set<GameData> expected = new HashSet<>();
+        expected.add(new GameData(gameID1, "Potato", "Carrot", "Fruit Fight", chess_game));
+        expected.add(new GameData(gameID2, "Peanut Butter", "Celery", "Banana Bowl", chess_game));
+
+        Set<GameData> actual = assertDoesNotThrow(GameDAO::listGames);
+
+        assertEquals(expected, actual);
     }
 }
