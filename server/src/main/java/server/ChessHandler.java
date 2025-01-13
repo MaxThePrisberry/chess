@@ -3,7 +3,7 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dataaccess.HandlerTargetedException;
-import service.Phase3MasterService;
+import service.MasterService;
 import service.model.*;
 import spark.Request;
 import spark.Response;
@@ -13,7 +13,7 @@ import java.util.Map;
 public class ChessHandler {
     private final Gson gson = new Gson();
 
-    private final Phase3MasterService service = new Phase3MasterService();
+    private final MasterService service = new MasterService();
 
     public String clear(Request req, Response res) {
         try {

@@ -15,36 +15,36 @@ import javax.naming.AuthenticationException;
 import java.util.UUID;
 
 public class UserService {
-    public UserDataResult register(RegisterRequest request, UserDAO userDAO, AuthDAO authDAO) throws HandlerTargetedException {
+    public UserDataResult register(RegisterRequest request) throws HandlerTargetedException {
         try {
-            UserData user = userDAO.getUser(request.username());
+            UserData user = UserDAO.getUser(request.username());
         } catch (DataAccessException e) {
-            userDAO.createUser(request.username(), BCrypt.hashpw(request.password(), BCrypt.gensalt()), request.email());
+            UserDAO.createUser(request.username(), BCrypt.hashpw(request.password(), BCrypt.gensalt()), request.email());
             String authToken = UUID.randomUUID().toString();
-            authDAO.createAuth(authToken, request.username());
+            AuthDAO.createAuth(authToken, request.username());
             return new UserDataResult(request.username(), authToken);
         }
         throw new HandlerTargetedException(403, "Error: already taken");
     }
 
-    public UserDataResult login(LoginRequest request, UserDAO userDAO, AuthDAO authDAO) throws HandlerTargetedException {
+    public UserDataResult login(LoginRequest request) throws HandlerTargetedException {
         UserData user;
         try {
-            user = userDAO.getUser(request.username());
+            user = UserDAO.getUser(request.username());
             if (!BCrypt.checkpw(request.password(), user.password())) {
                 throw new AuthenticationException("Error: passwords do not match");
             }
             String authToken = UUID.randomUUID().toString();
-            authDAO.createAuth(authToken, request.username());
+            AuthDAO.createAuth(authToken, request.username());
             return new UserDataResult(request.username(), authToken);
         } catch (DataAccessException | AuthenticationException e) {
             throw new HandlerTargetedException(401, "Error: unauthorized");
         }
     }
 
-    public void logout(LogoutRequest request, AuthDAO authDAO) throws HandlerTargetedException {
+    public void logout(LogoutRequest request) throws HandlerTargetedException {
         try {
-            authDAO.deleteAuth(request.authToken());
+            AuthDAO.deleteAuth(request.authToken());
         } catch (DataAccessException e) {
             throw new HandlerTargetedException(401, "Error: unauthorized");
         }

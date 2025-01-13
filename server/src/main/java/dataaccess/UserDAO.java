@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class UserDAO {
 
-    public UserDAO() {
+    public static void setUp() {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS users (
@@ -24,7 +24,7 @@ public class UserDAO {
         }
     }
 
-    public void createUser(String username, String password, String email) {
+    public static void createUser(String username, String password, String email) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO users (username, password, email) " +
                     "VALUES (?, ?, ?);")) {
@@ -38,7 +38,7 @@ public class UserDAO {
         }
     }
 
-    public UserData getUser(String username) throws DataAccessException {
+    public static UserData getUser(String username) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT username, password, email FROM users" +
                     " WHERE username = ?;")) {
@@ -55,7 +55,7 @@ public class UserDAO {
         throw new DataAccessException("getUser Error: No user with given username");
     }
 
-    public void clear() {
+    public static void clear() {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
                 statement.executeUpdate();

@@ -6,50 +6,47 @@ import dataaccess.HandlerTargetedException;
 import dataaccess.UserDAO;
 import service.model.*;
 
-public class Phase3MasterService {
-    private final AuthDAO authDAO;
-    private final GameDAO gameDAO;
-    private final UserDAO userDAO;
+public class MasterService {
 
     private final UserService userService;
     private final GameService gameService;
     private final DeleteService deleteService;
 
-    public Phase3MasterService() {
-        authDAO = new AuthDAO();
-        gameDAO = new GameDAO();
-        userDAO = new UserDAO();
-
+    public MasterService() {
         userService = new UserService();
         gameService = new GameService();
         deleteService = new DeleteService();
+
+        UserDAO.setUp();
+        GameDAO.setUp();
+        AuthDAO.setUp();
     }
 
     public UserDataResult register(RegisterRequest request) throws HandlerTargetedException {
-        return userService.register(request, userDAO, authDAO);
+        return userService.register(request);
     }
 
     public UserDataResult login(LoginRequest request) throws HandlerTargetedException {
-        return userService.login(request, userDAO, authDAO);
+        return userService.login(request);
     }
 
     public void logout(LogoutRequest request) throws HandlerTargetedException {
-        userService.logout(request, authDAO);
+        userService.logout(request);
     }
 
     public ListGamesResult listGames(ListGamesRequest request) throws HandlerTargetedException {
-        return gameService.listGames(request, authDAO, gameDAO);
+        return gameService.listGames(request);
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws HandlerTargetedException {
-        return gameService.createGame(request, authDAO, gameDAO);
+        return gameService.createGame(request);
     }
 
     public void joinGame(JoinGameRequest request) throws HandlerTargetedException {
-        gameService.joinGame(request, authDAO, gameDAO);
+        gameService.joinGame(request);
     }
 
     public void clear() {
-        deleteService.clear(authDAO, gameDAO, userDAO);
+        deleteService.clear();
     }
 }

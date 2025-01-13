@@ -10,9 +10,9 @@ import java.util.Set;
 
 public class GameDAO {
 
-    private final Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
-    public GameDAO() {
+    public static void setUp() {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS games (
@@ -29,7 +29,7 @@ public class GameDAO {
         }
     }
 
-    public int createGame(String whiteUsername, String blackUsername, String gameName, ChessGame game) {
+    public static int createGame(String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO games (white_username, " +
                     "black_username, game_name, chess_game) VALUES (?, ?, ?, ?);", PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -48,7 +48,7 @@ public class GameDAO {
         }
     }
 
-    public GameData getGame(int gameID) throws DataAccessException {
+    public static GameData getGame(int gameID) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT game_id, white_username," +
                     "black_username, game_name, chess_game FROM games WHERE game_id = ?;")) {
@@ -65,7 +65,7 @@ public class GameDAO {
         throw new DataAccessException("getGame Error: No game with given gameID");
     }
 
-    public Set<GameData> listGames() {
+    public static Set<GameData> listGames() {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM games;")) {
                 ResultSet res = statement.executeQuery();
@@ -81,7 +81,7 @@ public class GameDAO {
         }
     }
 
-    public void deleteGame(int gameID) {
+    public static void deleteGame(int gameID) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("DELETE FROM games WHERE game_id = ?;")) {
                 statement.setInt(1, gameID);
@@ -95,7 +95,7 @@ public class GameDAO {
         }
     }
 
-    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
+    public static void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT game_id FROM games " +
                     "WHERE game_id = ?;")) {
@@ -127,7 +127,7 @@ public class GameDAO {
         }
     }
 
-    public void clear() {
+    public static void clear() {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE games;")) {
                 statement.executeUpdate();

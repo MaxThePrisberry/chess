@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class AuthDAO {
 
-    public AuthDAO() {
+    public static void setUp() {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS auths (
@@ -23,7 +23,7 @@ public class AuthDAO {
         }
     }
 
-    public void createAuth(String authToken, String username) {
+    public static void createAuth(String authToken, String username) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement createStatement = conn.prepareStatement("INSERT INTO auths (auth_token, username) " +
                     "VALUES (?, ?);")) {
@@ -36,7 +36,7 @@ public class AuthDAO {
         }
     }
 
-    public AuthData getAuth(String authToken) throws DataAccessException {
+    public static AuthData getAuth(String authToken) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT auth_token, username FROM auths " +
                     "WHERE auth_token = ?;")) {
@@ -52,7 +52,7 @@ public class AuthDAO {
         throw new DataAccessException("getAuth Error: No AuthData with given authToken");
     }
 
-    public void deleteAuth(String authToken) throws DataAccessException {
+    public static void deleteAuth(String authToken) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("DELETE FROM auths WHERE auth_token = ?;")) {
                 statement.setString(1, authToken);
@@ -66,7 +66,7 @@ public class AuthDAO {
         }
     }
 
-    public void clear() {
+    public static void clear() {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE auths;")) {
                 statement.executeUpdate();
