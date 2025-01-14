@@ -177,7 +177,8 @@ public class ServerFacadeTests {
                 Games:
                 1 | testGameName2
                 2 | testGameName3
-                3 | testGameName4\n""", data.output());
+                3 | testGameName4
+                """, data.output());
     }
 
     @Test
