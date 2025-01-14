@@ -1,10 +1,22 @@
 package ui;
 
-abstract class UserUI {
+public abstract class UserUI {
 
-    abstract String help();
+    public enum UIType {
+        PRELOGIN(PreLoginUI.class);
 
-    void exit() {
+        private final Class<? extends UserUI> uiClass;
+
+        UIType(Class<? extends UserUI> uiClass) {  // Constructor
+            this.uiClass = uiClass;
+        }
+
+        public Class<? extends UserUI> getUIClass() {  // Method
+            return uiClass;
+        }
+    }
+
+    public static void quit() {
         System.exit(0);
     }
 }
