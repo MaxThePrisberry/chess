@@ -26,7 +26,7 @@ public class PreLoginUI extends UserUI {
 
     public static UIData register(String username, String password, String email) throws UIException {
         if (username.isBlank() || password.isBlank() || email.isBlank()) {
-            throw new UIException(true, "User supplied blank inputs.");
+            throw new UIException(true, "User supplied blank input.");
         }
 
         Map<String, String> jsonMap = Map.of("username", username, "password", password, "email", email);
@@ -34,7 +34,7 @@ public class PreLoginUI extends UserUI {
         URI uri;
         HttpURLConnection http;
         try {
-            uri = new URI(SERVER_LOCATION);
+            uri = new URI(SERVER_LOCATION + "/user");
             http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod("POST");
             http.setDoOutput(true);
@@ -44,22 +44,18 @@ public class PreLoginUI extends UserUI {
             http.connect();
             int status = http.getResponseCode();
             if (status >= 200 && status < 300) {
-
+                throw new UIException(false, "Server responded with a non-200 error code.");
             }
             Map<String, String> response;
             try (InputStream readStream = http.getInputStream()) {
                 InputStreamReader reader = new InputStreamReader(readStream);
                 response = gson.fromJson(reader, Map.class);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (JsonIOException | JsonSyntaxException e) {
-                throw new RuntimeException("We got a problem with the JSON");
             }
 
             if (!response.get("username").isEmpty() && !response.get("authToken").isEmpty()) {
                 return new UIData(UIType.LOGIN, "Registration Success!");
             } else {
-                return new UIData(UIType.PRELOGIN, "Registration Failed: Server returned malformed response.");
+                return new UIData(UIType.PRELOGIN, "Registration Failed: Something went wrong.");
             }
         } catch (ProtocolException e) {
             throw new UIException(false, "A protocol exception was thrown");
@@ -69,6 +65,8 @@ public class PreLoginUI extends UserUI {
             throw new UIException(false, "URI syntax doesn't like the server location variable");
         } catch (IOException e) {
             throw new UIException(false, "There was an error interacting with the server");
+        } catch (JsonIOException | JsonSyntaxException e) {
+            throw new UIException(false, "We got a problem with the JSON");
         }
     }
 }

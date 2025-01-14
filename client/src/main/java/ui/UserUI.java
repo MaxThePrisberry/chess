@@ -2,7 +2,7 @@ package ui;
 
 public abstract class UserUI {
 
-    public static final String SERVER_LOCATION = "http://localhost:8080/user";
+    public static final String SERVER_LOCATION = "http://localhost:8080";
 
     public enum UIType {
         PRELOGIN(PreLoginUI.class),
