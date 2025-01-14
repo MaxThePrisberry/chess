@@ -1,7 +1,10 @@
 package ui;
 
+import model.GameData;
 import ui.model.UIData;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static ui.Variables.authToken;
@@ -70,5 +73,30 @@ public class LoginUI extends UserUI {
 
         return new UIData(UIType.LOGIN, "You have joined game " + gameID + " as player " + playerColor + ".\n" +
                 printChessBoard(playerColor));
+    }
+
+    public static UIData list() {
+        if (authToken == null || authToken.isBlank()) {
+            throw new UIException(false, "authToken is blank when it should have been something.");
+        }
+
+        Map<String, List<Map<String, Object>>> response = sendServer("/game", "GET", null);
+        List<Map<String, Object>> games = response.get("games");
+
+        if (games == null) {
+            throw new UIException(false, "List games failed: Response from server blank.");
+        }
+
+        games.sort((one, two) -> {
+            Double gameID1 = (Double) one.get("gameID");
+            Double gameID2 = (Double) two.get("gameID");
+            return gameID1.compareTo(gameID2);
+        });
+
+        StringBuilder output = new StringBuilder();
+        for (Map<String, Object> game : games) {
+            output.append(((Double)game.get("gameID")).intValue()).append(" | ").append(game.get("gameName")).append('\n');
+        }
+        return new UIData(UIType.LOGIN, "Games:\n" + output.toString());
     }
 }
