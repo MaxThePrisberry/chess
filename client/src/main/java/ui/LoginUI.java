@@ -29,4 +29,21 @@ public class LoginUI extends UserUI {
 
         return new UIData(UIType.PRELOGIN, "You have logged out.");
     }
+
+    public static UIData create(String gameName) throws UIException {
+        if (gameName == null || gameName.isBlank()) {
+            throw new UIException(false, "gameName is blank when it should have been something.");
+        }
+
+        Map<String, String> jsonMap = Map.of("gameName", gameName);
+        String data = gson.toJson(jsonMap);
+
+        Map<String, Double> response = sendServer("/game", "POST", data);
+
+        if (response.get("gameID") != null) {
+            return new UIData(UIType.LOGIN, "New game created with ID " + response.get("gameID").intValue());
+        } else {
+            throw new UIException(false, "Create Game Failed: Response from server blank.");
+        }
+    }
 }

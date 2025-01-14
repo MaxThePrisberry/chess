@@ -33,7 +33,7 @@ public abstract class UserUI {
         System.exit(0);
     }
 
-    public static Map<String, String> sendServer(String endpoint, String method, String body) throws UIException {
+    public static Map sendServer(String endpoint, String method, String body) throws UIException {
         URI uri;
         HttpURLConnection http;
         try {
@@ -52,7 +52,7 @@ public abstract class UserUI {
             http.connect();
             int status = http.getResponseCode();
 
-            Map<String, String> response;
+            Map response;
             try (InputStream readStream = http.getInputStream()) {
                 InputStreamReader reader = new InputStreamReader(readStream);
                 response = gson.fromJson(reader, Map.class);
