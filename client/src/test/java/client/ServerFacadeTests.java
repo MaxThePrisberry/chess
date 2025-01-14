@@ -181,6 +181,11 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void listNegative() {
+        assertThrows(UIException.class, LoginUI::list);
+    }
+
+    @Test
     public void observe() {
         PreLoginUI.register("Potato", "Farmer", "on@farm");
         LoginUI.create("testGameName1");
