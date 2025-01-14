@@ -31,7 +31,7 @@ public class Main {
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof UIException) {
                     if (((UIException) e.getCause()).userCaused) {
-                        System.out.print("One or more of the parameters you entered are invalid. Please try again.\n>>> ");
+                        System.out.print("An error occurred due to the parameters you entered: " + e.getCause().getMessage() + "\n>>> ");
                     } else {
                         System.out.print("There was an error communicating with the server: " + e.getCause().getMessage() + "\n>>> ");
                     }

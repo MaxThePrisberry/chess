@@ -75,16 +75,12 @@ public class LoginUI extends UserUI {
                 printChessBoard(playerColor));
     }
 
-    public static UIData list() {
-        if (authToken == null || authToken.isBlank()) {
-            throw new UIException(false, "authToken is blank when it should have been something.");
-        }
-
+    private static List<Map<String, Object>> getGames() {
         Map<String, List<Map<String, Object>>> response = sendServer("/game", "GET", null);
         List<Map<String, Object>> games = response.get("games");
 
         if (games == null) {
-            throw new UIException(false, "List games failed: Response from server blank.");
+            throw new UIException(false, "List games failed: Response from server null.");
         }
 
         games.sort((one, two) -> {
@@ -92,11 +88,33 @@ public class LoginUI extends UserUI {
             Double gameID2 = (Double) two.get("gameID");
             return gameID1.compareTo(gameID2);
         });
+        return games;
+    }
+
+    public static UIData list() {
+        if (authToken == null || authToken.isBlank()) {
+            throw new UIException(false, "authToken is blank when it should have been something.");
+        }
+
+        List<Map<String, Object>> games = getGames();
 
         StringBuilder output = new StringBuilder();
         for (Map<String, Object> game : games) {
             output.append(((Double)game.get("gameID")).intValue()).append(" | ").append(game.get("gameName")).append('\n');
         }
         return new UIData(UIType.LOGIN, "Games:\n" + output.toString());
+    }
+
+    public static UIData observe(String gameID) {
+        if (gameID == null || gameID.isBlank() || !isJustANumber(gameID)) {
+            throw new UIException(true, "User inputs are in the wrong format or empty.");
+        }
+        List<Map<String, Object>> games = getGames();
+        for (Map<String, Object> game : games) {
+            if (((Double)game.get("gameID")).intValue() == Integer.parseInt(gameID)) {
+                return new UIData(UIType.LOGIN, printChessBoard("WHITE"));
+            }
+        }
+        throw new UIException(true, "No game associated with given gameID.");
     }
 }
