@@ -7,7 +7,7 @@ import java.util.Map;
 import static ui.Variables.authToken;
 import static ui.Variables.gson;
 
-public class PreLoginUI extends UserUI {
+public class PreLoginUI extends ServerFacade {
 
     public static UIData help() {
         String output = """

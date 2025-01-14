@@ -1,16 +1,13 @@
 package ui;
 
-import model.GameData;
 import ui.model.UIData;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ui.EscapeSequences.*;
 import static ui.Variables.*;
 
-public class LoginUI extends UserUI {
+public class LoginUI extends ServerFacade {
     public static UIData help() {
         String output = """
                 logout - end session and return to the login interface

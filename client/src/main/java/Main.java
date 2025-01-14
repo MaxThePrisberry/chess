@@ -1,7 +1,6 @@
-import chess.*;
 import ui.PreLoginUI;
 import ui.UIException;
-import ui.UserUI;
+import ui.ServerFacade;
 import ui.model.UIData;
 
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +10,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Class<? extends UserUI> userUI = PreLoginUI.class;
+        Class<? extends ServerFacade> userUI = PreLoginUI.class;
         Scanner scanner = new Scanner(System.in);
         System.out.print("Welcome to the 240 Chess Client!\n\nEnter 'help' to get started.\n\n>>> ");
         while (true) {

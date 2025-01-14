@@ -12,19 +12,19 @@ import java.util.Map;
 
 import static ui.Variables.*;
 
-public abstract class UserUI {
+public abstract class ServerFacade {
 
     public enum UIType {
         PRELOGIN(PreLoginUI.class),
         LOGIN(LoginUI.class);
 
-        private final Class<? extends UserUI> uiClass;
+        private final Class<? extends ServerFacade> uiClass;
 
-        UIType(Class<? extends UserUI> uiClass) {  // Constructor
+        UIType(Class<? extends ServerFacade> uiClass) {  // Constructor
             this.uiClass = uiClass;
         }
 
-        public Class<? extends UserUI> getUIClass() {  // Method
+        public Class<? extends ServerFacade> getUIClass() {  // Method
             return uiClass;
         }
     }

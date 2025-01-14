@@ -1,5 +1,5 @@
 package ui.model;
 
-import ui.UserUI;
+import ui.ServerFacade;
 
-public record UIData(UserUI.UIType uiType, String output) {}
+public record UIData(ServerFacade.UIType uiType, String output) {}
