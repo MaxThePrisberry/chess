@@ -1,18 +1,11 @@
 package ui;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 import ui.model.UIData;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.*;
 import java.util.Map;
 
 public class PreLoginUI extends UserUI {
+    
     private static final Gson gson = new Gson();
 
     public static UIData help() {
