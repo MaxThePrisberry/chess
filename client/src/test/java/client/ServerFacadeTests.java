@@ -66,6 +66,7 @@ public class ServerFacadeTests {
         String oldAuth = authToken;
         UIData data = assertDoesNotThrow(() -> PreLoginUI.register("Potato", "Farmer", "on@farm"));
         assertNotEquals(oldAuth, authToken);
+        assertNotEquals(null, authToken);
         assertTrue(authToken.length() > 20);
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
     }
@@ -77,6 +78,7 @@ public class ServerFacadeTests {
         LoginUI.logout();
         UIData data = assertDoesNotThrow(() -> PreLoginUI.login("Potato", "Farmer"));
         assertNotEquals(oldAuth, authToken);
+        assertNotEquals(null, authToken);
         assertTrue(authToken.length() > 20);
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
     }
@@ -91,5 +93,21 @@ public class ServerFacadeTests {
     public void loginHelp() {
         UIData data = assertDoesNotThrow(LoginUI::help);
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+    }
+
+    @Test
+    public void logout() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+
+        LoginUI.logout();
+        assertNull(authToken);
+    }
+
+    @Test
+    public void create() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        UIData data = assertDoesNotThrow(() -> LoginUI.create("testGameName"));
+        assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+        assertTrue(data.output().matches("^New game created with ID \\d+"));
     }
 }
