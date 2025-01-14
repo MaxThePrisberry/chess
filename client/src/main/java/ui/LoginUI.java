@@ -26,6 +26,7 @@ public class LoginUI extends ServerFacade {
         }
 
         sendServer("/session", "DELETE", null);
+        authToken = null;
 
         return new UIData(UIType.PRELOGIN, "You have logged out.");
     }

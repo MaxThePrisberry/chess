@@ -29,11 +29,11 @@ public abstract class ServerFacade {
         }
     }
 
-    public static void quit() {
+    protected static void quit() {
         System.exit(0);
     }
 
-    public static Map sendServer(String endpoint, String method, String body) throws UIException {
+    protected static Map sendServer(String endpoint, String method, String body) throws UIException {
         URI uri;
         HttpURLConnection http;
         try {
@@ -73,7 +73,7 @@ public abstract class ServerFacade {
         }
     }
 
-    public static String printChessBoard(String color) {
+    protected static String printChessBoard(String color) {
         return "ChessBoard representation of " + color;
     }
 }
