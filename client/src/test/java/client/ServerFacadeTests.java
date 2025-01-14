@@ -92,6 +92,16 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void loginNegative() {
+        String oldAuth = authToken;
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        LoginUI.logout();
+        assertThrows(UIException.class, () -> PreLoginUI.login("Potato", "Eater"));
+        assertEquals(oldAuth, authToken);
+        assertNull(authToken);
+    }
+
+    @Test
     public void preloginHelp() {
         UIData data = assertDoesNotThrow(PreLoginUI::help);
         assertEquals(ServerFacade.UIType.PRELOGIN, data.uiType());
@@ -108,6 +118,12 @@ public class ServerFacadeTests {
         PreLoginUI.register("Potato", "Farmer", "on@farm");
 
         LoginUI.logout();
+        assertNull(authToken);
+    }
+
+    @Test
+    public void logoutNegative() {
+        assertThrows(UIException.class, LoginUI::logout);
         assertNull(authToken);
     }
 
