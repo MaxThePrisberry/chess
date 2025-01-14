@@ -1,12 +1,13 @@
 package ui;
 
-import com.google.gson.Gson;
 import ui.model.UIData;
+
 import java.util.Map;
 
+import static ui.Variables.authToken;
+import static ui.Variables.gson;
+
 public class PreLoginUI extends UserUI {
-    
-    private static final Gson gson = new Gson();
 
     public static UIData help() {
         String output = """
@@ -25,9 +26,10 @@ public class PreLoginUI extends UserUI {
         Map<String, String> jsonMap = Map.of("username", username, "password", password, "email", email);
         String data = gson.toJson(jsonMap);
 
-        Map<String, String> response = sendServer("/user", "POST", null, data);
+        Map<String, String> response = sendServer("/user", "POST", data);
 
         if (!response.get("username").isEmpty() && !response.get("authToken").isEmpty()) {
+            authToken = response.get("authToken");
             return new UIData(UIType.LOGIN, "Registration Success!\nYou are now registered. ['help']");
         } else {
             throw new UIException(false, "Registration Failed: Response from server blank.");
@@ -42,9 +44,10 @@ public class PreLoginUI extends UserUI {
         Map<String, String> jsonMap = Map.of("username", username, "password", password);
         String data = gson.toJson(jsonMap);
 
-        Map<String, String> response = sendServer("/session", "POST", null, data);
+        Map<String, String> response = sendServer("/session", "POST", data);
 
         if (!response.get("username").isEmpty() && !response.get("authToken").isEmpty()) {
+            authToken = response.get("authToken");
             return new UIData(UIType.LOGIN, "Login Success!\n['help']");
         } else {
             throw new UIException(false, "Registration Failed: Response from server blank.");

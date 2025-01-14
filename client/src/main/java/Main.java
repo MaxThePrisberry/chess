@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-    @SuppressWarnings("unreachable")
     public static void main(String[] args) {
         Class<? extends UserUI> userUI = PreLoginUI.class;
         Scanner scanner = new Scanner(System.in);

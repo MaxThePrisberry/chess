@@ -1,9 +1,7 @@
 package ui;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import ui.model.UIData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +10,9 @@ import java.io.OutputStream;
 import java.net.*;
 import java.util.Map;
 
-public abstract class UserUI {
+import static ui.Variables.*;
 
-    public static final String SERVER_LOCATION = "http://localhost:8080";
-    public static final Gson gson = new Gson();
+public abstract class UserUI {
 
     public enum UIType {
         PRELOGIN(PreLoginUI.class),
@@ -36,7 +33,7 @@ public abstract class UserUI {
         System.exit(0);
     }
 
-    public static Map<String, String> sendServer(String endpoint, String method, String authToken, String body) throws UIException {
+    public static Map<String, String> sendServer(String endpoint, String method, String body) throws UIException {
         URI uri;
         HttpURLConnection http;
         try {
