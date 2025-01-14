@@ -1,14 +1,17 @@
 import chess.*;
 import ui.PreLoginUI;
+import ui.UIException;
 import ui.UserUI;
 import ui.model.UIData;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
+    @SuppressWarnings("unreachable")
     public static void main(String[] args) {
         Class<? extends UserUI> userUI = PreLoginUI.class;
         Scanner scanner = new Scanner(System.in);
@@ -19,14 +22,23 @@ public class Main {
                 Class<?>[] parameterClassTypes = new Class<?>[line.length - 1];
                 Arrays.fill(parameterClassTypes, String.class);
 
-                Method targetMethod = userUI.getMethod(line[0], parameterClassTypes);
+                Method targetMethod = userUI.getMethod(line[0].toLowerCase(), parameterClassTypes);
                 UIData result = (UIData) targetMethod.invoke(null, (Object[]) Arrays.copyOfRange(line, 1, line.length));
                 System.out.println(result.output());
                 userUI = result.uiType().getUIClass();
 
                 System.out.print("\n>>> ");
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                System.out.print("There was an error executing your command. Is it a valid option in ['help']? Did you enter the right number of parameters? Please try again.\n>>> ");
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof UIException) {
+                    if (((UIException) e.getCause()).userCaused) {
+                        System.out.print("One or more of the parameters you entered are invalid. Please try again.\n>>> ");
+                    } else {
+                        System.out.print("There was an error communicating with the server: " + e.getMessage() + "\n>>> ");
+                    }
+                }
+                System.out.print("A wild exception has appeared! Give up hope.\n>>> ");
             }
         }
     }
