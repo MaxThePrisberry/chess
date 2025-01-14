@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Variables {
 
-    public static final String SERVER_LOCATION = "http://localhost:8080";
+    public static String SERVER_LOCATION = "http://localhost:8080";
     public static final Gson gson = new Gson();
     public static String authToken;
 
