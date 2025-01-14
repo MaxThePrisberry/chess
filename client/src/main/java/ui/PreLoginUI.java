@@ -35,7 +35,24 @@ public class PreLoginUI extends UserUI {
         Map<String, String> response = sendServer("/user", "POST", null, data);
 
         if (!response.get("username").isEmpty() && !response.get("authToken").isEmpty()) {
-            return new UIData(UIType.LOGIN, "Registration Success!\nYou are now logged in. ['help']");
+            return new UIData(UIType.LOGIN, "Registration Success!\nYou are now registered. ['help']");
+        } else {
+            throw new UIException(false, "Registration Failed: Response from server blank.");
+        }
+    }
+
+    public static UIData login(String username, String password) throws UIException {
+        if (username.isBlank() || password.isBlank()) {
+            throw new UIException(true, "User supplied blank input.");
+        }
+
+        Map<String, String> jsonMap = Map.of("username", username, "password", password);
+        String data = gson.toJson(jsonMap);
+
+        Map<String, String> response = sendServer("/session", "POST", null, data);
+
+        if (!response.get("username").isEmpty() && !response.get("authToken").isEmpty()) {
+            return new UIData(UIType.LOGIN, "Login Success!\n['help']");
         } else {
             throw new UIException(false, "Registration Failed: Response from server blank.");
         }
