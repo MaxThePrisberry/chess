@@ -6,6 +6,7 @@ import java.util.Map;
 
 import static ui.Variables.authToken;
 import static ui.Variables.gson;
+import static ui.EscapeSequences.*;
 
 public class LoginUI extends UserUI {
     public static UIData help() {
@@ -45,5 +46,29 @@ public class LoginUI extends UserUI {
         } else {
             throw new UIException(false, "Create Game Failed: Response from server blank.");
         }
+    }
+
+    private static boolean isJustANumber(String number) {
+        for (char c : number.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static UIData join(String gameID, String playerColor) {
+        if (gameID == null || gameID.isBlank() || !isJustANumber(gameID) || playerColor == null || playerColor.isBlank() ||
+                (!playerColor.equals("WHITE") && !playerColor.equals("BLACK"))) {
+            throw new UIException(true, "User inputs are in the wrong format or empty.");
+        }
+
+        Map<String, String> jsonMap = Map.of("gameID", gameID, "playerColor", playerColor);
+        String data = gson.toJson(jsonMap);
+
+        sendServer("/game", "PUT", data);
+
+        return new UIData(UIType.LOGIN, "You have joined game " + gameID + " as player " + playerColor + ".\n" +
+                printChessBoard(playerColor));
     }
 }

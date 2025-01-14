@@ -51,14 +51,13 @@ public abstract class UserUI {
             }
             http.connect();
             int status = http.getResponseCode();
-
+            if (status < 200 || status > 299) {
+                throw new UIException(false, "Server responded with error code " + status);
+            }
             Map response;
             try (InputStream readStream = http.getInputStream()) {
                 InputStreamReader reader = new InputStreamReader(readStream);
                 response = gson.fromJson(reader, Map.class);
-            }
-            if (status < 200 || status > 299) {
-                throw new UIException(false, "Server responded with error code " + status + " and " + response.toString());
             }
             return response;
         } catch (ProtocolException e) {
@@ -72,5 +71,9 @@ public abstract class UserUI {
         } catch (JsonIOException | JsonSyntaxException e) {
             throw new UIException(false, "We got a problem with the JSON");
         }
+    }
+
+    public static String printChessBoard(String color) {
+        return "ChessBoard representation of " + color;
     }
 }
