@@ -6,6 +6,7 @@ import server.Server;
 import ui.LoginUI;
 import ui.PreLoginUI;
 import ui.ServerFacade;
+import ui.UIException;
 import ui.model.UIData;
 
 import java.sql.Connection;
@@ -31,6 +32,7 @@ public class ServerFacadeTests {
 
     @BeforeEach
     void setUp() {
+        authToken = null;
         UserDAO.setUp();
         GameDAO.setUp();
         AuthDAO.setUp();
@@ -69,6 +71,12 @@ public class ServerFacadeTests {
         assertNotEquals(null, authToken);
         assertTrue(authToken.length() > 20);
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+    }
+
+    @Test
+    public void registerNegative() {
+        assertThrows(UIException.class, () -> PreLoginUI.register("Potato", "", "on@farm"));
+        assertNull(authToken);
     }
 
     @Test
@@ -150,5 +158,11 @@ public class ServerFacadeTests {
         LoginUI.create("testGameName1");
         UIData data = assertDoesNotThrow(() -> LoginUI.observe("1"));
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+    }
+
+    @Test
+    public void observeNegative() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        assertThrows(UIException.class, () -> LoginUI.observe("1"));
     }
 }
