@@ -66,7 +66,7 @@ public class ChessHandler {
     }
 
     public String logout(Request req, Response res) {
-        String authToken = req.headers("authorization");
+        String authToken = req.headers("Authorization");
         if (authToken == null || authToken.isBlank()) {
             res.status(400);
             return gson.toJson(Map.of("message", "Error: bad request"));

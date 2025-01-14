@@ -35,8 +35,9 @@ public class Main {
                     } else {
                         System.out.print("There was an error communicating with the server: " + e.getCause().getMessage() + "\n>>> ");
                     }
+                } else {
+                    System.out.print("A wild exception has appeared! Give up hope.\n" + e.getCause().getMessage() + "\n>>> ");
                 }
-                System.out.print("A wild exception has appeared! Give up hope.\n" + e.getCause().getMessage() + "\n>>> ");
             }
         }
     }

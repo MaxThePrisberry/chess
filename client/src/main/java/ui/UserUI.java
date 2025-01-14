@@ -40,8 +40,8 @@ public abstract class UserUI {
             uri = new URI(SERVER_LOCATION + endpoint);
             http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod(method);
-            if (authToken != null && !body.isEmpty()) {
-                http.addRequestProperty("authentication", authToken);
+            if (authToken != null && !authToken.isBlank()) {
+                http.addRequestProperty("Authorization", authToken);
             }
             if (body != null && !body.isEmpty()) {
                 http.setDoOutput(true);
@@ -51,13 +51,14 @@ public abstract class UserUI {
             }
             http.connect();
             int status = http.getResponseCode();
-            if (status < 200 || status > 299) {
-                throw new UIException(false, "Server responded with a non-200 error code: " + status);
-            }
+
             Map<String, String> response;
             try (InputStream readStream = http.getInputStream()) {
                 InputStreamReader reader = new InputStreamReader(readStream);
                 response = gson.fromJson(reader, Map.class);
+            }
+            if (status < 200 || status > 299) {
+                throw new UIException(false, "Server responded with error code " + status + " and " + response.toString());
             }
             return response;
         } catch (ProtocolException e) {
