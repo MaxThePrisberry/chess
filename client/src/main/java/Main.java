@@ -16,7 +16,10 @@ public class Main {
         while (true) {
             String[] line = scanner.nextLine().strip().split(" ");
             try {
-                Method targetMethod = userUI.getMethod(line[0]);
+                Class<?>[] parameterClassTypes = new Class<?>[line.length - 1];
+                Arrays.fill(parameterClassTypes, String.class);
+
+                Method targetMethod = userUI.getMethod(line[0], parameterClassTypes);
                 UIData result = (UIData) targetMethod.invoke(null, (Object[]) Arrays.copyOfRange(line, 1, line.length));
                 System.out.println(result.output());
                 userUI = result.uiType().getUIClass();
