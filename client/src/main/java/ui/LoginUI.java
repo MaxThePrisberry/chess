@@ -7,9 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ui.Variables.authToken;
-import static ui.Variables.gson;
 import static ui.EscapeSequences.*;
+import static ui.Variables.*;
 
 public class LoginUI extends UserUI {
     public static UIData help() {
@@ -98,9 +97,11 @@ public class LoginUI extends UserUI {
 
         List<Map<String, Object>> games = getGames();
 
+        gameIDMap.clear();
         StringBuilder output = new StringBuilder();
-        for (Map<String, Object> game : games) {
-            output.append(((Double)game.get("gameID")).intValue()).append(" | ").append(game.get("gameName")).append('\n');
+        for (int i = 1; i <= games.size(); i++) {
+            gameIDMap.put(i, ((Double) games.get(i-1).get("gameID")).intValue());
+            output.append(i).append(" | ").append(games.get(i-1).get("gameName")).append('\n');
         }
         return new UIData(UIType.LOGIN, "Games:\n" + output.toString());
     }
@@ -109,11 +110,8 @@ public class LoginUI extends UserUI {
         if (gameID == null || gameID.isBlank() || !isJustANumber(gameID)) {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
-        List<Map<String, Object>> games = getGames();
-        for (Map<String, Object> game : games) {
-            if (((Double)game.get("gameID")).intValue() == Integer.parseInt(gameID)) {
-                return new UIData(UIType.LOGIN, printChessBoard("WHITE"));
-            }
+        if (gameIDMap.containsKey(Integer.parseInt(gameID))) {
+            return new UIData(UIType.LOGIN, printChessBoard("WHITE"));
         }
         throw new UIException(true, "No game associated with given gameID.");
     }
