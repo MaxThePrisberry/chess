@@ -35,10 +35,10 @@ public class Main {
                     if (((UIException) e.getCause()).userCaused) {
                         System.out.print("One or more of the parameters you entered are invalid. Please try again.\n>>> ");
                     } else {
-                        System.out.print("There was an error communicating with the server: " + e.getMessage() + "\n>>> ");
+                        System.out.print("There was an error communicating with the server: " + e.getCause().getMessage() + "\n>>> ");
                     }
                 }
-                System.out.print("A wild exception has appeared! Give up hope.\n>>> ");
+                System.out.print("A wild exception has appeared! Give up hope.\n" + e.getCause().getMessage() + "\n>>> ");
             }
         }
     }
