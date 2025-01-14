@@ -114,6 +114,7 @@ public class LoginUI extends ServerFacade {
         if (gameID == null || gameID.isBlank() || !isJustANumber(gameID)) {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
+        getGames();
         if (gameIDMap.containsKey(Integer.parseInt(gameID))) {
             return new UIData(UIType.LOGIN, printChessBoard("WHITE"));
         }

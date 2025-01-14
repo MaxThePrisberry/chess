@@ -143,4 +143,12 @@ public class ServerFacadeTests {
                 2 | testGameName3
                 3 | testGameName4\n""", data.output());
     }
+
+    @Test
+    public void observe() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        LoginUI.create("testGameName1");
+        UIData data = assertDoesNotThrow(() -> LoginUI.observe("1"));
+        assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+    }
 }
