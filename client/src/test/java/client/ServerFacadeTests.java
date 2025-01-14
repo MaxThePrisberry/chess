@@ -119,4 +119,28 @@ public class ServerFacadeTests {
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
         assertTrue(data.output().matches("^You have joined game \\d+ as player (?:WHITE|BLACK)\\.[\\s\\S]*"));
     }
+
+    @Test
+    public void list() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        LoginUI.create("testGameName1");
+        LoginUI.create("testGameName2");
+        LoginUI.create("testGameName3");
+        try (Connection conn = DatabaseManager.getConnection()){
+            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM games WHERE game_id = 1;")) {
+                statement.executeUpdate();
+            } catch (SQLException ignored) {}
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException ignored) {}
+        LoginUI.create("testGameName4");
+
+        UIData data = LoginUI.list();
+        assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+        assertEquals("""
+                Games:
+                1 | testGameName2
+                2 | testGameName3
+                3 | testGameName4\n""", data.output());
+    }
 }
