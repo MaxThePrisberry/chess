@@ -63,7 +63,9 @@ public class LoginUI extends ServerFacade {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
 
-        Map<String, String> jsonMap = Map.of("gameID", gameID, "playerColor", playerColor);
+        getGames();
+
+        Map<String, String> jsonMap = Map.of("gameID", gameIDMap.get(Integer.parseInt(gameID)).toString(), "playerColor", playerColor);
         String data = gson.toJson(jsonMap);
 
         sendServer("/game", "PUT", data);
@@ -85,6 +87,12 @@ public class LoginUI extends ServerFacade {
             Double gameID2 = (Double) two.get("gameID");
             return gameID1.compareTo(gameID2);
         });
+
+        gameIDMap.clear();
+        for (int i = 1; i <= games.size(); i++) {
+            gameIDMap.put(i, ((Double) games.get(i-1).get("gameID")).intValue());
+        }
+
         return games;
     }
 
@@ -95,10 +103,8 @@ public class LoginUI extends ServerFacade {
 
         List<Map<String, Object>> games = getGames();
 
-        gameIDMap.clear();
         StringBuilder output = new StringBuilder();
         for (int i = 1; i <= games.size(); i++) {
-            gameIDMap.put(i, ((Double) games.get(i-1).get("gameID")).intValue());
             output.append(i).append(" | ").append(games.get(i-1).get("gameName")).append('\n');
         }
         return new UIData(UIType.LOGIN, "Games:\n" + output.toString());
