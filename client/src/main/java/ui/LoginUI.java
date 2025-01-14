@@ -57,13 +57,19 @@ public class LoginUI extends ServerFacade {
         return true;
     }
 
+    private static boolean isValidGameID(String gameID) {
+        getGames();
+        return gameIDMap.containsKey(Integer.parseInt(gameID));
+    }
+
     public static UIData join(String gameID, String playerColor) {
         if (gameID == null || gameID.isBlank() || !isJustANumber(gameID) || playerColor == null || playerColor.isBlank() ||
                 (!playerColor.equals("WHITE") && !playerColor.equals("BLACK"))) {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
-
-        getGames();
+        if (!isValidGameID(gameID)) {
+            throw new UIException(true, "Given gameID does not exist.");
+        }
 
         Map<String, String> jsonMap = Map.of("gameID", gameIDMap.get(Integer.parseInt(gameID)).toString(), "playerColor", playerColor);
         String data = gson.toJson(jsonMap);
@@ -114,8 +120,7 @@ public class LoginUI extends ServerFacade {
         if (gameID == null || gameID.isBlank() || !isJustANumber(gameID)) {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
-        getGames();
-        if (gameIDMap.containsKey(Integer.parseInt(gameID))) {
+        if (isValidGameID(gameID)) {
             return new UIData(UIType.LOGIN, printChessBoard("WHITE"));
         }
         throw new UIException(true, "No game associated with given gameID.");

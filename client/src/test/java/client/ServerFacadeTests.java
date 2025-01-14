@@ -136,12 +136,24 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void createNegative() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        assertThrows(UIException.class, () -> LoginUI.create(""));
+    }
+
+    @Test
     public void join() {
         PreLoginUI.register("Potato", "Farmer", "on@farm");
         LoginUI.create("testGameName");
         UIData data = assertDoesNotThrow(() -> LoginUI.join("1", "WHITE"));
         assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
         assertTrue(data.output().matches("^You have joined game \\d+ as player (?:WHITE|BLACK)\\.[\\s\\S]*"));
+    }
+
+    @Test
+    public void joinNegative() {
+        PreLoginUI.register("Potato", "Farmer", "on@farm");
+        assertThrows(UIException.class, () -> LoginUI.join("1", "WHITE"));
     }
 
     @Test
