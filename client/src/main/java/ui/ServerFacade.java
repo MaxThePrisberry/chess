@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
 import java.util.Map;
+import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 import static ui.Variables.*;
@@ -38,6 +39,41 @@ public abstract class ServerFacade {
         System.exit(0);
     }
 
+    private static void throwStatusError(String endpoint, String method, int status) throws UIException {
+        switch (status) {
+            case 500 -> {
+                throw new UIException(false, "The server is encountering unexpected problems. Try again in a bit.");
+            }
+            case 400 -> {
+                if (endpoint.equals("/user")) {
+                    throw new UIException(true, "The user data provided makes for an invalid request. Try again.");
+                } else if (endpoint.equals("/game") && method.equals("POST")) {
+                    throw new UIException(true, "The create game request was invalid. Try again.");
+                } else if (endpoint.equals("/game") && method.equals("PUT")) {
+                    throw new UIException(true, "Your request to join a game created an invalid request. Try again.");
+                }
+            }
+            case 401 -> {
+                if (endpoint.equals("/session") && method.equals("POST")) {
+                    throw new UIException(true, "A username or password given was incorrect. Try again.");
+                } else {
+                    throw new UIException(true, "You don't seem to be logged in correctly. Log out->in and retry.");
+                }
+            }
+            case 403 -> {
+                if (endpoint.equals("/user")) {
+                    throw new UIException(true, "A user with that name already exists. Try a different username.");
+                } else if (endpoint.equals("/game")) {
+                    throw new UIException(true, "You can't join a game as that position because someone's already" +
+                            " playing there. Try a different position.");
+                }
+            }
+            default -> {
+                throw new UIException(false, "An unaccounted for status code was thrown.");
+            }
+        }
+    }
+
     protected static Map sendServer(String endpoint, String method, String body) throws UIException {
         URI uri;
         HttpURLConnection http;
@@ -57,7 +93,7 @@ public abstract class ServerFacade {
             http.connect();
             int status = http.getResponseCode();
             if (status < 200 || status > 299) {
-                throw new UIException(false, "Server responded with error code " + status);
+                throwStatusError(endpoint, method, status);
             }
             Map response;
             try (InputStream readStream = http.getInputStream()) {

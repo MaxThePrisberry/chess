@@ -10,9 +10,15 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        run();
+    }
+
+    public static void run() {
         Class<? extends ServerFacade> userUI = PreLoginUI.class;
         Scanner scanner = new Scanner(System.in);
+
         System.out.print("Welcome to the 240 Chess Client!\n\nEnter 'help' to get started.\n\n>>> ");
+
         while (true) {
             String[] line = scanner.nextLine().strip().split(" ");
             try {
@@ -30,9 +36,9 @@ public class Main {
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof UIException) {
                     if (((UIException) e.getCause()).userCaused) {
-                        System.out.print("An error occurred due to the parameters you entered: " + e.getCause().getMessage() + "\n>>> ");
+                        System.out.print(e.getCause().getMessage() + "\n\n>>> ");
                     } else {
-                        System.out.print("There was an error communicating with the server: " + e.getCause().getMessage() + "\n>>> ");
+                        System.out.print("A server communication error has occurred. Try again in a moment.\n>>> ");
                     }
                 } else {
                     System.out.print("A wild exception has appeared! Give up hope.\n" + e.getCause().getMessage() + "\n>>> ");
