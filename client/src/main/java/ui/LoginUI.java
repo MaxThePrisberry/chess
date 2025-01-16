@@ -1,13 +1,21 @@
 package ui;
 
 import ui.model.UIData;
+import ui.websocket.WSClient;
 
+import javax.websocket.DeploymentException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static ui.Variables.*;
 
 public class LoginUI extends ServerFacade {
+
+    public static Map<Integer, Integer> gameIDMap = new HashMap<>();
+
     public static UIData help() {
         String output = """
                 logout - end session and return to the login interface
@@ -48,13 +56,13 @@ public class LoginUI extends ServerFacade {
         }
     }
 
-    private static boolean isJustANumber(String number) {
+    private static boolean isNotJustANumber(String number) {
         for (char c : number.toCharArray()) {
             if (!Character.isDigit(c)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private static boolean isValidGameID(String gameID) {
@@ -63,7 +71,7 @@ public class LoginUI extends ServerFacade {
     }
 
     public static UIData join(String gameID, String playerColor) {
-        if (gameID == null || gameID.isBlank() || !isJustANumber(gameID) || playerColor == null || playerColor.isBlank() ||
+        if (gameID == null || gameID.isBlank() || isNotJustANumber(gameID) || playerColor == null || playerColor.isBlank() ||
                 (!playerColor.equals("WHITE") && !playerColor.equals("BLACK"))) {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
@@ -76,8 +84,12 @@ public class LoginUI extends ServerFacade {
 
         sendServer("/game", "PUT", data);
 
-        return new UIData(UIType.LOGIN, "You have joined game " + gameID + " as player " + playerColor + ".\n" +
-                printChessBoard(playerColor));
+        try {
+            transitionToGameplayUI(Integer.parseInt(gameID));
+        } catch (DeploymentException | URISyntaxException | IOException e) {
+            throw new UIException(false, "WebSocket failed to setup correctly.");
+        }
+        return new UIData(UIType.GAMEPLAY, "You have joined game " + gameID + " as player " + playerColor + ".\n");
     }
 
     private static List<Map<String, Object>> getGames() {
@@ -117,12 +129,21 @@ public class LoginUI extends ServerFacade {
     }
 
     public static UIData observe(String gameID) {
-        if (gameID == null || gameID.isBlank() || !isJustANumber(gameID)) {
+        if (gameID == null || gameID.isBlank() || isNotJustANumber(gameID)) {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
         if (isValidGameID(gameID)) {
-            return new UIData(UIType.LOGIN, printChessBoard("WHITE"));
+            try {
+                transitionToGameplayUI(Integer.parseInt(gameID));
+            } catch (DeploymentException | URISyntaxException | IOException e) {
+                throw new UIException(false, "WebSocket failed to setup correctly.");
+            }
+            return new UIData(UIType.GAMEPLAY, "You are now observing game " + gameID);
         }
         throw new UIException(true, "No game associated with given gameID.");
+    }
+
+    private static void transitionToGameplayUI(int gameID) throws DeploymentException, URISyntaxException, IOException {
+        GameplayUI.wsClient = new WSClient(gameID);
     }
 }
