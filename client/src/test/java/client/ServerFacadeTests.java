@@ -146,7 +146,7 @@ public class ServerFacadeTests {
         PreLoginUI.register("Potato", "Farmer", "on@farm");
         LoginUI.create("testGameName");
         UIData data = assertDoesNotThrow(() -> LoginUI.join("1", "WHITE"));
-        assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+        assertEquals(ServerFacade.UIType.GAMEPLAY, data.uiType());
         assertTrue(data.output().matches("^You have joined game \\d+ as player (?:WHITE|BLACK)\\.[\\s\\S]*"));
     }
 
@@ -191,7 +191,7 @@ public class ServerFacadeTests {
         PreLoginUI.register("Potato", "Farmer", "on@farm");
         LoginUI.create("testGameName1");
         UIData data = assertDoesNotThrow(() -> LoginUI.observe("1"));
-        assertEquals(ServerFacade.UIType.LOGIN, data.uiType());
+        assertEquals(ServerFacade.UIType.GAMEPLAY, data.uiType());
     }
 
     @Test

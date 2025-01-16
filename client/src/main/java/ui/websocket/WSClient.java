@@ -47,15 +47,15 @@ public class WSClient implements WebSocketListener {
         ServerMessage message = gson.fromJson(s, ServerMessage.class);
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
-                GameplayUI.currentBoard = gson.fromJson(message.getContent(), ChessBoard.class);
+                GameplayUI.currentBoard = gson.fromJson(message.getGame(), ChessBoard.class);
                 GameplayUI.redrawBoardComplete();
             }
             case ERROR -> {
-                GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getContent(),
+                GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getGame(),
                         ServerError.class).errorMessage());
             }
             case NOTIFICATION -> {
-                GameplayUI.displayNotification(gson.fromJson(message.getContent(),
+                GameplayUI.displayNotification(gson.fromJson(message.getGame(),
                         ServerNotification.class).notification());
             }
         }
