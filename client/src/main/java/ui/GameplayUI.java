@@ -164,9 +164,11 @@ public class GameplayUI extends ServerFacade {
             output.append("\n # | H  G  F  E  D  C  B  A\n");
         }
         for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 10; j++) {
+            for (int j = 1; j < 11; j++) {
                 if (j == 1) {
-                    output.append(" " + (normal ? 9-i : i) + " |");
+                    output.append(" ").append(normal ? 9 - i : i).append(" |");
+                } else if (j == 10) {
+                    output.append(RESET_BG_COLOR + "| ").append(normal ? 9 - i : i).append('\n');
                 } else if ((i + j) % 2 == 0) {
                     output.append(SET_BG_COLOR_BLACK);
                     ChessPiece piece = board.getPiece(new ChessPosition((normal ? i : 9-i), (normal ? j-1 : 9-(j-1))));
@@ -185,7 +187,11 @@ public class GameplayUI extends ServerFacade {
                     }
                 }
             }
-            output.append(RESET_BG_COLOR + "|\n");
+        }
+        if (normal) {
+            output.append("   | A  B  C  D  E  F  G  H\n");
+        } else {
+            output.append("   | H  G  F  E  D  C  B  A\n");
         }
         return output.toString();
     }
