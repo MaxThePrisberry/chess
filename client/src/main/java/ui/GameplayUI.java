@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import ui.model.UIData;
 import ui.websocket.WSClient;
 import websocket.commands.UserGameCommand;
@@ -16,7 +13,7 @@ import static ui.Variables.inGame;
 public class GameplayUI extends ServerFacade {
 
     public static WSClient wsClient;
-    public static ChessBoard currentBoard;
+    public static ChessGame currentGame;
 
     public static UIData help() {
         String output = """
@@ -29,9 +26,55 @@ public class GameplayUI extends ServerFacade {
         return new UIData(UIType.GAMEPLAY, output);
     }
 
+    public static void highlight() {
+
+    }
+
+    public static void resign() {
+
+    }
+
+    private static ChessPosition translatePosition(String given) {
+        given = given.toLowerCase();
+        int row;
+        switch (given.charAt(0)) {
+            case 'a' -> row = 1;
+            case 'b' -> row = 2;
+            case 'c' -> row = 3;
+            case 'd' -> row = 4;
+            case 'e' -> row = 5;
+            case 'f' -> row = 6;
+            case 'g' -> row = 7;
+            case 'h' -> row = 8;
+            default -> {
+                throw new UIException(true, "Invalid position given.");
+            }
+        }
+        int column = Integer.parseInt(String.valueOf(given.charAt(1)));
+        if (column < 1 || column > 8) {
+            throw new UIException(true, "Invalid position given.");
+        }
+        return new ChessPosition(row, column);
+    }
+
+    public static void move(String start, String end) {
+        ChessPosition endPosition = translatePosition(end);
+        for (ChessMove move : currentGame.validMoves(translatePosition(start))) {
+            if (move.getEndPosition().equals(endPosition)) {
+                try {
+                    wsClient.send(UserGameCommand.CommandType.MAKE_MOVE);
+                } catch (IOException e) {
+                    throw new UIException(false, "Error sending move over websocket.");
+                }
+                return;
+            }
+        }
+        throw new UIException(true, "Move given is not a valid move.");
+    }
+
     public static void redrawBoard() {
         System.out.print(ERASE_SCREEN);
-        System.out.print('\n' + printChessBoard(wsClient.color, currentBoard) + '\n');
+        System.out.print('\n' + printChessBoard(wsClient.color, currentGame.getBoard()) + '\n');
     }
 
     public static void redrawBoardComplete() {
@@ -112,7 +155,7 @@ public class GameplayUI extends ServerFacade {
     }
 
     private static String printChessBoard(String color, ChessBoard board) {
-        boolean normal = color.equals("WHITE");
+        boolean normal = color == null || color.equals("WHITE");
 
         StringBuilder output = new StringBuilder("\r");
         if (normal) {

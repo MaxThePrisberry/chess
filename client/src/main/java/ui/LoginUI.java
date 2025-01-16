@@ -130,7 +130,7 @@ public class LoginUI extends ServerFacade {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
         if (isValidGameID(gameID)) {
-            transitionToGameplayUI(Integer.parseInt(gameID), "WHITE");
+            transitionToGameplayUI(Integer.parseInt(gameID), null);
             return new UIData(UIType.GAMEPLAY, "You are now observing game " + gameID);
         }
         throw new UIException(true, "No game associated with given gameID.");
@@ -138,7 +138,11 @@ public class LoginUI extends ServerFacade {
 
     private static void transitionToGameplayUI(int gameID, String color) throws UIException {
         try {
-            GameplayUI.wsClient = new WSClient(gameID, color);
+            if (color == null) {
+                GameplayUI.wsClient = new WSClient(gameID, null);
+            } else {
+                GameplayUI.wsClient = new WSClient(gameID, color);
+            }
             inGame = true;
         } catch (Exception e) {
             throw new UIException(false, "WebSocket failed to setup correctly. " + e.getMessage());
