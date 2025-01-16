@@ -1,6 +1,6 @@
 package server;
 
-import chess.ChessBoard;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -29,20 +29,17 @@ public class WSHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+        AuthData user;
+        try {
+            user = AuthDAO.getAuth(command.getAuthToken());
+        } catch (DataAccessException e) {
+            sendError(session, authErrorText);
+            return;
+        }
+        GameData data = getGame(session, command.getGameID());
+        if (data == null) {return;}
         switch (command.getCommandType()) {
             case LEAVE -> {
-                AuthData user = null;
-                try {
-                    user = AuthDAO.getAuth(command.getAuthToken());
-                } catch (DataAccessException e) {
-                    sendError(session, authErrorText);
-                    return;
-                }
-                GameData data = getGame(session, command.getGameID());
-                if (data == null) {
-                    sendError(session, "No such game.");
-                    return;
-                }
                 if (user.username().equals(data.whiteUsername())) {
                     GameDAO.updateGame(data.gameID(), null, data.blackUsername(), data.gameName(), data.game());
                 } else if (user.username().equals(data.blackUsername())) {
@@ -55,19 +52,7 @@ public class WSHandler {
                 session.close();
             }
             case CONNECT -> {
-                AuthData user = null;
-                try {
-                    user = AuthDAO.getAuth(command.getAuthToken());
-                } catch (DataAccessException e) {
-                    sendError(session, authErrorText);
-                    return;
-                }
                 sessions.put(user.username(), session);
-                GameData data = getGame(session, command.getGameID());
-                if (data == null) {
-                    sendError(session, "No such game.");
-                    return;
-                }
                 ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 response.setGame(gson.toJson(data.game().getBoard(), ChessBoard.class));
                 try {
@@ -86,13 +71,6 @@ public class WSHandler {
                 sendOtherClients(session, command, tmp);
             }
             case RESIGN -> {
-                GameData data = getGame(session, command.getGameID());
-                AuthData user = null;
-                try {
-                    user = AuthDAO.getAuth(command.getAuthToken());
-                } catch (DataAccessException e) {
-                    sendError(session, authErrorText);
-                }
                 String otherUsername;
                 if (user.username().equals(data.whiteUsername())) {
                     otherUsername = data.blackUsername();
@@ -127,9 +105,63 @@ public class WSHandler {
                 gameRooms.get(command.getGameID()).values().removeIf(value -> value.equals(session));
             }
             case MAKE_MOVE -> {
-
+                if ((data.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) && !user.username().equals(data.whiteUsername())) ||
+                        (data.game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) && !user.username().equals(data.blackUsername()))) {
+                    sendError(session, "Make moves on your own turn, buddy.");
+                    return;
+                }
+                try {
+                    data.game().makeMove(command.getMove());
+                } catch (InvalidMoveException e) {
+                    sendError(session, "Not a valid move, buddy.");
+                    return;
+                }
+                ServerMessage loadNewGamestate = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                loadNewGamestate.setGame(gson.toJson(data.game().getBoard()));
+                try {
+                    session.getRemote().sendString(gson.toJson(loadNewGamestate));
+                } catch (IOException e) {
+                    sendError(session, serverErrorText);
+                }
+                sendOtherClients(session, command, loadNewGamestate);
+                ServerMessage loadMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                loadMessage.setMessage("The move " + translateChessPosition(command.getMove().getStartPosition()) +
+                        " to " + translateChessPosition(command.getMove().getEndPosition()) + " was made.");
+                sendOtherClients(session, command, loadMessage);
             }
         }
+    }
+
+    private String translateChessPosition(ChessPosition pos) {
+        StringBuilder output = new StringBuilder();
+        switch (pos.getColumn()) {
+            case 1 -> {
+                output.append('a');
+            }
+            case 2 -> {
+                output.append('b');
+            }
+            case 3 -> {
+                output.append('c');
+            }
+            case 4 -> {
+                output.append('d');
+            }
+            case 5 -> {
+                output.append('e');
+            }
+            case 6 -> {
+                output.append('f');
+            }
+            case 7 -> {
+                output.append('g');
+            }
+            case 8 -> {
+                output.append('h');
+            }
+        }
+        output.append(pos.getRow());
+        return output.toString();
     }
 
     private void sendOtherClients(Session session, UserGameCommand command, ServerMessage tmp) {
