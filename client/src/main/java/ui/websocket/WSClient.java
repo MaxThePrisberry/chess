@@ -1,6 +1,7 @@
 package ui.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import ui.GameplayUI;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerError;
@@ -28,20 +29,24 @@ public class WSClient extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String s) {
-                ServerMessage message = gson.fromJson(s, ServerMessage.class);
-                switch (message.getServerMessageType()) {
-                    case LOAD_GAME -> {
-                        GameplayUI.currentGame = gson.fromJson(message.getGame(), ChessGame.class);
-                        GameplayUI.redrawBoardComplete();
+                try {
+                    ServerMessage message = gson.fromJson(s, ServerMessage.class);
+                    switch (message.getServerMessageType()) {
+                        case LOAD_GAME -> {
+                            GameplayUI.currentGame = gson.fromJson(message.getGame(), ChessGame.class);
+                            GameplayUI.redrawBoardComplete();
+                        }
+                        case ERROR -> {
+                            GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getGame(),
+                                    ServerError.class).errorMessage());
+                        }
+                        case NOTIFICATION -> {
+                            GameplayUI.displayNotification(gson.fromJson(message.getGame(),
+                                    ServerNotification.class).notification());
+                        }
                     }
-                    case ERROR -> {
-                        GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getGame(),
-                                ServerError.class).errorMessage());
-                    }
-                    case NOTIFICATION -> {
-                        GameplayUI.displayNotification(gson.fromJson(message.getGame(),
-                                ServerNotification.class).notification());
-                    }
+                } catch (Exception e) {
+                    System.out.println("There was a client websocket error: " + e.getMessage());
                 }
             }
         });
@@ -49,6 +54,12 @@ public class WSClient extends Endpoint {
 
     public void send(UserGameCommand.CommandType commandType) throws IOException {
         UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
+        session.getBasicRemote().sendText(gson.toJson(command));
+    }
+
+    public void send(UserGameCommand.CommandType commandType, ChessMove move) throws IOException {
+        UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
+        command.setMove(move);
         session.getBasicRemote().sendText(gson.toJson(command));
     }
 

@@ -36,37 +36,37 @@ public class GameplayUI extends ServerFacade {
 
     private static ChessPosition translatePosition(String given) {
         given = given.toLowerCase();
-        int row;
+        int col;
         switch (given.charAt(0)) {
-            case 'a' -> row = 1;
-            case 'b' -> row = 2;
-            case 'c' -> row = 3;
-            case 'd' -> row = 4;
-            case 'e' -> row = 5;
-            case 'f' -> row = 6;
-            case 'g' -> row = 7;
-            case 'h' -> row = 8;
+            case 'a' -> col = 1;
+            case 'b' -> col = 2;
+            case 'c' -> col = 3;
+            case 'd' -> col = 4;
+            case 'e' -> col = 5;
+            case 'f' -> col = 6;
+            case 'g' -> col = 7;
+            case 'h' -> col = 8;
             default -> {
                 throw new UIException(true, "Invalid position given.");
             }
         }
-        int column = Integer.parseInt(String.valueOf(given.charAt(1)));
-        if (column < 1 || column > 8) {
+        int row = Integer.parseInt(String.valueOf(given.charAt(1)));
+        if (row < 1 || row > 8) {
             throw new UIException(true, "Invalid position given.");
         }
-        return new ChessPosition(row, column);
+        return new ChessPosition(row, col);
     }
 
-    public static void move(String start, String end) {
+    public static UIData move(String start, String end) {
         ChessPosition endPosition = translatePosition(end);
         for (ChessMove move : currentGame.validMoves(translatePosition(start))) {
             if (move.getEndPosition().equals(endPosition)) {
                 try {
-                    wsClient.send(UserGameCommand.CommandType.MAKE_MOVE);
+                    wsClient.send(UserGameCommand.CommandType.MAKE_MOVE, move);
+                    return new UIData(UIType.GAMEPLAY, "Piece moved successfully.");
                 } catch (IOException e) {
                     throw new UIException(false, "Error sending move over websocket.");
                 }
-                return;
             }
         }
         throw new UIException(true, "Move given is not a valid move.");
@@ -171,7 +171,7 @@ public class GameplayUI extends ServerFacade {
                     output.append(RESET_BG_COLOR + "| ").append(normal ? 9 - i : i).append('\n');
                 } else if ((i + j) % 2 == 0) {
                     output.append(SET_BG_COLOR_BLACK);
-                    ChessPiece piece = board.getPiece(new ChessPosition((normal ? i : 9-i), (normal ? j-1 : 9-(j-1))));
+                    ChessPiece piece = board.getPiece(new ChessPosition((normal ? 9-i : i), (normal ? j-1 : 9-(j-1))));
                     if (piece != null) {
                         output.append(getPieceRepresentation(piece.getPieceType(), piece.getTeamColor()));
                     } else {
@@ -179,7 +179,7 @@ public class GameplayUI extends ServerFacade {
                     }
                 } else {
                     output.append(SET_BG_COLOR_LIGHT_GREY);
-                    ChessPiece piece = board.getPiece(new ChessPosition((normal ? i : 9-i), (normal ? j-1 : 9-(j-1))));
+                    ChessPiece piece = board.getPiece(new ChessPosition((normal ? 9-i : i), (normal ? j-1 : 9-(j-1))));
                     if (piece != null) {
                         output.append(getPieceRepresentation(piece.getPieceType(), piece.getTeamColor()));
                     } else {
