@@ -1,77 +1,63 @@
 package ui.websocket;
 
 import chess.ChessGame;
-import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.client.WebSocketClient;
 import ui.GameplayUI;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerError;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerNotification;
 
+import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 
 import static ui.Variables.*;
 
-public class WSClient implements WebSocketListener {
+public class WSClient extends Endpoint {
 
-    public org.eclipse.jetty.websocket.api.Session session;
+    public Session session;
     public String color;
     public int gameID;
 
     public WSClient(int gameID, String color) throws Exception {
         this.gameID = gameID;
         this.color = color;
-        WebSocketClient client = new WebSocketClient();
-        client.start();
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        this.session = container.connectToServer(this, new URI("ws://localhost:8080/ws"));
 
-        session = client.connect(this, new URI("ws://localhost:8080/ws")).get();
-        session.getRemote().sendString(gson.toJson(new UserGameCommand(
-                UserGameCommand.CommandType.CONNECT, authToken, gameID)));
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
+            public void onMessage(String s) {
+                ServerMessage message = gson.fromJson(s, ServerMessage.class);
+                switch (message.getServerMessageType()) {
+                    case LOAD_GAME -> {
+                        GameplayUI.currentGame = gson.fromJson(message.getGame(), ChessGame.class);
+                        GameplayUI.redrawBoardComplete();
+                    }
+                    case ERROR -> {
+                        GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getGame(),
+                                ServerError.class).errorMessage());
+                    }
+                    case NOTIFICATION -> {
+                        GameplayUI.displayNotification(gson.fromJson(message.getGame(),
+                                ServerNotification.class).notification());
+                    }
+                }
+            }
+        });
     }
 
     public void send(UserGameCommand.CommandType commandType) throws IOException {
         UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
-        session.getRemote().sendString(gson.toJson(command));
+        session.getBasicRemote().sendText(gson.toJson(command));
     }
 
     @Override
-    public void onWebSocketBinary(byte[] bytes, int i, int i1) {
-
-    }
-
-    @Override
-    public void onWebSocketText(String s) {
-        ServerMessage message = gson.fromJson(s, ServerMessage.class);
-        switch (message.getServerMessageType()) {
-            case LOAD_GAME -> {
-                GameplayUI.currentGame = gson.fromJson(message.getGame(), ChessGame.class);
-                GameplayUI.redrawBoardComplete();
-            }
-            case ERROR -> {
-                GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getGame(),
-                        ServerError.class).errorMessage());
-            }
-            case NOTIFICATION -> {
-                GameplayUI.displayNotification(gson.fromJson(message.getGame(),
-                        ServerNotification.class).notification());
-            }
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+        try {
+            send(UserGameCommand.CommandType.CONNECT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void onWebSocketClose(int i, String s) {
-
-    }
-
-    @Override
-    public void onWebSocketConnect(org.eclipse.jetty.websocket.api.Session session) {
-
-    }
-
-    @Override
-    public void onWebSocketError(Throwable throwable) {
-
     }
 }

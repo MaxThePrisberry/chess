@@ -26,6 +26,16 @@ public class WSHandler {
     private static final String serverErrorText = "Server error.";
     private static final String authErrorText = "No user registered with your session.";
 
+    @OnWebSocketConnect
+    public void onConnect(Session session) {
+        System.out.println("Connection: " + session);
+    }
+
+    @OnWebSocketError
+    public void onError(Session session, Throwable throwable) {
+        System.out.println("Error: " + throwable.getMessage());
+    }
+
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
@@ -52,6 +62,15 @@ public class WSHandler {
                 session.close();
             }
             case CONNECT -> {
+                if (command.getColor() != null) {
+                    if (command.getColor().equals("WHITE") && data.whiteUsername() == null) {
+                        GameDAO.updateGame(data.gameID(), user.username(), data.blackUsername(), data.gameName(), data.game());
+                    } else if (command.getColor().equals("BLACK") && data.blackUsername() == null) {
+                        GameDAO.updateGame(data.gameID(), data.whiteUsername(), user.username(), data.gameName(), data.game());
+                    } else {
+                        sendError(session, "Can't join as a color not available.");
+                    }
+                }
                 sessions.put(user.username(), session);
                 ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 response.setGame(gson.toJson(data.game()));
@@ -66,8 +85,12 @@ public class WSHandler {
                     gameRooms.put(command.getGameID(), new HashMap<>(Map.of(user.username(), session)));
                 }
                 ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                String color = data.whiteUsername().equals(user.username()) ? "WHITE" : "BLACK";
-                tmp.setMessage("User " + user.username() + " has joined the game as color " + color + ".");
+                if (command.getColor() != null) {
+                    String color = data.whiteUsername().equals(user.username()) ? "WHITE" : "BLACK";
+                    tmp.setMessage("User " + user.username() + " has joined the game as color " + color + ".");
+                } else {
+                    tmp.setMessage("User " + user.username() + " is observing this game.");
+                }
                 sendOtherClients(session, command, tmp);
             }
             case RESIGN -> {

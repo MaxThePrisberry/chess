@@ -2,6 +2,7 @@ package ui;
 
 import ui.model.UIData;
 import ui.websocket.WSClient;
+import websocket.commands.UserGameCommand;
 
 import javax.websocket.DeploymentException;
 import java.io.IOException;
@@ -144,6 +145,7 @@ public class LoginUI extends ServerFacade {
                 GameplayUI.wsClient = new WSClient(gameID, color);
             }
             inGame = true;
+            GameplayUI.wsClient.send(UserGameCommand.CommandType.CONNECT);
         } catch (Exception e) {
             throw new UIException(false, "WebSocket failed to setup correctly. " + e.getMessage());
         }
