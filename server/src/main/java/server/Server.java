@@ -31,9 +31,6 @@ public class Server {
         Spark.post("/game", handler::createGame);
         Spark.put("/game", handler::joinGame);
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
-
         Spark.awaitInitialization();
         return Spark.port();
     }

@@ -15,10 +15,21 @@ public class ChessGame {
     private static final int[] X_DIRS = {-1, 1, 0, 0, -1, -1, 1, 1};
     private static final int[] Y_DIRS = {0, 0, -1, 1, -1, 1, -1, 1};
 
+    private boolean isOver;
+
+    public boolean isIsOver() {
+        return isOver;
+    }
+
+    public void setIsOver(boolean isOver) {
+        this.isOver = isOver;
+    }
+
     public ChessGame() {
         turnColor = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
+        isOver = false;
     }
 
     /**

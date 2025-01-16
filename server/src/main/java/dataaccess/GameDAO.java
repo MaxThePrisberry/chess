@@ -93,6 +93,10 @@ public class GameDAO {
         }
     }
 
+    public static void updateGame(GameData data) {
+        updateGame(data.gameID(), data.whiteUsername(), data.blackUsername(), data.gameName(), data.game());
+    }
+
     public static void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("SELECT game_id FROM games " +
