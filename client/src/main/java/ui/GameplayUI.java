@@ -11,6 +11,7 @@ import websocket.commands.UserGameCommand;
 import java.io.IOException;
 
 import static ui.EscapeSequences.*;
+import static ui.Variables.inGame;
 
 public class GameplayUI extends ServerFacade {
 
@@ -40,14 +41,11 @@ public class GameplayUI extends ServerFacade {
     public static UIData leave() {
         try {
             wsClient.send(UserGameCommand.CommandType.LEAVE);
+            inGame = false;
             return new UIData(UIType.LOGIN, "Returned to the login menu.");
         } catch (IOException e) {
             throw new UIException(false, "WebSocket threw an IOException.");
         }
-    }
-
-    public static UIData quit() {
-        return leave();
     }
 
     public static void displayNotification(String notification) {

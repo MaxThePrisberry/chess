@@ -84,11 +84,8 @@ public class LoginUI extends ServerFacade {
 
         sendServer("/game", "PUT", data);
 
-        try {
-            transitionToGameplayUI(Integer.parseInt(gameID));
-        } catch (DeploymentException | URISyntaxException | IOException e) {
-            throw new UIException(false, "WebSocket failed to setup correctly.");
-        }
+        transitionToGameplayUI(Integer.parseInt(gameID));
+
         return new UIData(UIType.GAMEPLAY, "You have joined game " + gameID + " as player " + playerColor + ".\n");
     }
 
@@ -133,17 +130,18 @@ public class LoginUI extends ServerFacade {
             throw new UIException(true, "User inputs are in the wrong format or empty.");
         }
         if (isValidGameID(gameID)) {
-            try {
-                transitionToGameplayUI(Integer.parseInt(gameID));
-            } catch (DeploymentException | URISyntaxException | IOException e) {
-                throw new UIException(false, "WebSocket failed to setup correctly.");
-            }
+            transitionToGameplayUI(Integer.parseInt(gameID));
             return new UIData(UIType.GAMEPLAY, "You are now observing game " + gameID);
         }
         throw new UIException(true, "No game associated with given gameID.");
     }
 
-    private static void transitionToGameplayUI(int gameID) throws DeploymentException, URISyntaxException, IOException {
-        GameplayUI.wsClient = new WSClient(gameID);
+    private static void transitionToGameplayUI(int gameID) throws UIException {
+        try {
+            GameplayUI.wsClient = new WSClient(gameID);
+            inGame = true;
+        } catch (Exception e) {
+            throw new UIException(false, "WebSocket failed to setup correctly. " + e.getMessage());
+        }
     }
 }

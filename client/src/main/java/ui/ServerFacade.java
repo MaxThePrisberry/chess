@@ -32,8 +32,12 @@ public abstract class ServerFacade {
     }
 
     public static UIData quit() {
-        System.exit(0);
-        return null;
+        if (inGame) {
+            return GameplayUI.leave();
+        } else {
+            System.exit(0);
+            return null;
+        }
     }
 
     private static void throwStatusError(String endpoint, String method, int status) throws UIException {

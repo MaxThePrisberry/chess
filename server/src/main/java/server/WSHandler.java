@@ -5,7 +5,6 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +20,7 @@ public class WSHandler {
     }
 
     @OnWebSocketClose
-    public void onClose(Session session) {
+    public void onClose(Session session, int status, String message) {
         sessions.remove(session);
     }
 

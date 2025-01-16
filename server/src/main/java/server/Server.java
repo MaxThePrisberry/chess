@@ -19,6 +19,9 @@ public class Server {
 
         ChessHandler handler = new ChessHandler();
 
+        //Handle websocket interaction
+        Spark.webSocket("/ws", WSHandler.class);
+
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", handler::clear);
         Spark.post("/user", handler::register);
@@ -27,9 +30,6 @@ public class Server {
         Spark.get("/game", handler::listGames);
         Spark.post("/game", handler::createGame);
         Spark.put("/game", handler::joinGame);
-
-        //Handle websocket interaction
-        Spark.webSocket("/ws", WSHandler.class);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
