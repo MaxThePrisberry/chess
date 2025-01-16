@@ -108,7 +108,7 @@ public class GameplayUI extends ServerFacade {
     }
 
     private static String getPieceRepresentation(ChessPiece.PieceType type, ChessGame.TeamColor color) {
-        if (color == ChessGame.TeamColor.WHITE) {
+        if (color == ChessGame.TeamColor.BLACK) {
             switch (type) {
                 case KING -> {
                     return WHITE_KING;
