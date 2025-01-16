@@ -38,6 +38,16 @@ public class WSHandler {
                     sendError(session, authErrorText);
                     return;
                 }
+                GameData data = getGame(session, command.getGameID());
+                if (data == null) {
+                    sendError(session, "No such game.");
+                    return;
+                }
+                if (user.username().equals(data.whiteUsername())) {
+                    GameDAO.updateGame(data.gameID(), null, data.blackUsername(), data.gameName(), data.game());
+                } else if (user.username().equals(data.blackUsername())) {
+                    GameDAO.updateGame(data.gameID(), data.whiteUsername(), null, data.gameName(), data.game());
+                }
                 gameRooms.get(command.getGameID()).values().removeIf(value -> value.equals(session));
                 ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
                 tmp.setMessage("User " + user.username() + " has left the game.");
@@ -54,7 +64,10 @@ public class WSHandler {
                 }
                 sessions.put(user.username(), session);
                 GameData data = getGame(session, command.getGameID());
-                if (data == null) {return;}
+                if (data == null) {
+                    sendError(session, "No such game.");
+                    return;
+                }
                 ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 response.setGame(gson.toJson(data.game().getBoard(), ChessBoard.class));
                 try {
