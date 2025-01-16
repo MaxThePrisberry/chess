@@ -41,15 +41,29 @@ public class WSHandler {
                 if (gameRooms.containsKey(command.getGameID())) {
                     gameRooms.get(command.getGameID()).put(user.username(), session);
                 } else {
-                    gameRooms.put(command.getGameID(), Map.of(user.username(), session));
+                    gameRooms.put(command.getGameID(), new HashMap<>(Map.of(user.username(), session)));
                 }
                 GameData data = getGame(command.getGameID());
-                ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, gson.toJson(data.game().getBoard(), ChessBoard.class));
+                ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                response.setGame(gson.toJson(data.game().getBoard(), ChessBoard.class));
+                String color = data.whiteUsername().equals(user.username()) ? "WHITE" : "BLACK";
                 try {
                     session.getRemote().sendString(gson.toJson(response));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                tmp.setMessage("User " + user.username() + " has joined the game as color " + color + ".");
+                String notification = gson.toJson(tmp);
+                gameRooms.get(command.getGameID()).forEach((key, value) -> {
+                    if (!value.equals(session)) {
+                        try {
+                            value.getRemote().sendString(notification);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
             }
             case RESIGN -> {
                 GameData data = getGame(command.getGameID());
@@ -70,11 +84,11 @@ public class WSHandler {
                 gameRooms.get(command.getGameID()).forEach((key, value) -> {
                     ServerMessage response;
                     if (key.equals(otherUsername)) {
-                        response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                "Your opponent " + otherUsername + " has resigned. You win!");
+                        response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                        response.setMessage("Your opponent " + otherUsername + " has resigned. You win!");
                     } else {
-                        response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                "The player " + otherUsername + " has resigned.");
+                        response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                        response.setMessage("The player " + otherUsername + " has resigned.");
                     }
                     try {
                         value.getRemote().sendString(gson.toJson(response));
@@ -96,4 +110,6 @@ public class WSHandler {
             throw new RuntimeException(e);
         }
     }
+
+    private
 }
