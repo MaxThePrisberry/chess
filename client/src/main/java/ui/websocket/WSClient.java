@@ -1,8 +1,7 @@
 package ui.websocket;
 
-import chess.ChessBoard;
+import chess.ChessGame;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import ui.GameplayUI;
 import websocket.commands.UserGameCommand;
@@ -47,7 +46,7 @@ public class WSClient implements WebSocketListener {
         ServerMessage message = gson.fromJson(s, ServerMessage.class);
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
-                GameplayUI.currentBoard = gson.fromJson(message.getGame(), ChessBoard.class);
+                GameplayUI.currentGame = gson.fromJson(message.getGame(), ChessGame.class);
                 GameplayUI.redrawBoardComplete();
             }
             case ERROR -> {

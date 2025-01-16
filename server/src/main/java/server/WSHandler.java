@@ -54,7 +54,7 @@ public class WSHandler {
             case CONNECT -> {
                 sessions.put(user.username(), session);
                 ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-                response.setGame(gson.toJson(data.game().getBoard(), ChessBoard.class));
+                response.setGame(gson.toJson(data.game()));
                 try {
                     session.getRemote().sendString(gson.toJson(response));
                 } catch (IOException e) {
@@ -122,7 +122,7 @@ public class WSHandler {
                     return;
                 }
                 ServerMessage loadNewGamestate = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-                loadNewGamestate.setGame(gson.toJson(data.game().getBoard()));
+                loadNewGamestate.setGame(gson.toJson(data.game()));
                 try {
                     session.getRemote().sendString(gson.toJson(loadNewGamestate));
                 } catch (IOException e) {
