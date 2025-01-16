@@ -18,10 +18,12 @@ import static ui.Variables.*;
 public class WSClient implements WebSocketListener {
 
     public org.eclipse.jetty.websocket.api.Session session;
+    public String color;
     public int gameID;
 
-    public WSClient(int gameID) throws Exception {
+    public WSClient(int gameID, String color) throws Exception {
         this.gameID = gameID;
+        this.color = color;
         WebSocketClient client = new WebSocketClient();
         client.start();
 
@@ -46,7 +48,7 @@ public class WSClient implements WebSocketListener {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
                 GameplayUI.currentBoard = gson.fromJson(message.getContent(), ChessBoard.class);
-                GameplayUI.redrawBoard();
+                GameplayUI.redrawBoardComplete();
             }
             case ERROR -> {
                 GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getContent(),

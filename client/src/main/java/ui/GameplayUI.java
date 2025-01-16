@@ -26,16 +26,22 @@ public class GameplayUI extends ServerFacade {
                 highlight <PIECE> - highlight valid moves for the given piece
                 leave - leave the game and return to login options
                 help - see available commands""";
-        return new UIData(ServerFacade.UIType.LOGIN, output);
+        return new UIData(UIType.GAMEPLAY, output);
     }
 
     public static void redrawBoard() {
+        System.out.print(ERASE_SCREEN);
+        System.out.print('\n' + printChessBoard(wsClient.color, currentBoard) + '\n');
+    }
 
+    public static void redrawBoardComplete() {
+        redrawBoard();
+        System.out.print(">>> ");
     }
 
     public static UIData redraw() {
         redrawBoard();
-        return new UIData(UIType.GAMEPLAY, "Board redrawn.");
+        return new UIData(UIType.GAMEPLAY, "\nBoard redrawn.");
     }
 
     public static UIData leave() {
@@ -49,11 +55,13 @@ public class GameplayUI extends ServerFacade {
     }
 
     public static void displayNotification(String notification) {
-
+        redrawBoard();
+        System.out.print(notification + "\n\n>>> ");
     }
 
     public static void displayErrorNotification(String notification) {
-
+        redrawBoard();
+        System.out.print(SET_TEXT_COLOR_RED + notification + RESET_TEXT_COLOR + "\n\n>>> ");
     }
 
     private static String getPieceRepresentation(ChessPiece.PieceType type, ChessGame.TeamColor color) {
@@ -103,12 +111,10 @@ public class GameplayUI extends ServerFacade {
         return null;
     }
 
-    private static String printChessBoard(String color) {
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        boolean normal = !color.equals("WHITE");
+    private static String printChessBoard(String color, ChessBoard board) {
+        boolean normal = color.equals("WHITE");
 
-        StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder("\r");
         if (normal) {
             output.append("\n # | A  B  C  D  E  F  G  H\n");
         } else {

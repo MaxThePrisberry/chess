@@ -18,8 +18,9 @@ public class ServerMessage {
         NOTIFICATION
     }
 
-    public ServerMessage(ServerMessageType type) {
+    public ServerMessage(ServerMessageType type, String content) {
         this.serverMessageType = type;
+        this.content = content;
     }
 
     public ServerMessageType getServerMessageType() {
