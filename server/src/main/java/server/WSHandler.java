@@ -1,7 +1,9 @@
 package server;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
+import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -10,7 +12,8 @@ import java.util.Set;
 @WebSocket
 public class WSHandler {
 
-    public Set<Session> sessions = new HashSet<>();
+    public static Set<Session> sessions = new HashSet<>();
+    public static Gson gson = new Gson();
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -24,10 +27,11 @@ public class WSHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-        try {
-            session.getRemote().sendString(message);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
+        switch (command.getCommandType()) {
+            case LEAVE -> {
+                session.close();
+            }
         }
     }
 }

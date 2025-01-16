@@ -47,6 +47,11 @@ public class WSClient extends Endpoint {
         session.getBasicRemote().sendText(gson.toJson(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID)));
     }
 
+    public void send(UserGameCommand.CommandType commandType) throws IOException {
+        UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
+        session.getBasicRemote().sendText(gson.toJson(command));
+    }
+
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 }

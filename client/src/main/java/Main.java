@@ -38,7 +38,7 @@ public class Main {
                     if (((UIException) e.getCause()).userCaused) {
                         System.out.print(e.getCause().getMessage() + "\n\n>>> ");
                     } else {
-                        System.out.print("A server communication error has occurred. Try again in a moment.\n>>> ");
+                        System.out.print("A server communication error has occurred. Try again in a moment. " + e.getCause().getMessage() + "\n>>> ");
                     }
                 } else {
                     System.out.print("A wild exception has appeared! Give up hope.\n" + e.getCause().getMessage() + "\n>>> ");

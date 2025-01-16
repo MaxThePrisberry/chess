@@ -6,6 +6,9 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import ui.model.UIData;
 import ui.websocket.WSClient;
+import websocket.commands.UserGameCommand;
+
+import java.io.IOException;
 
 import static ui.EscapeSequences.*;
 
@@ -35,7 +38,12 @@ public class GameplayUI extends ServerFacade {
     }
 
     public static UIData leave() {
-        return null;
+        try {
+            wsClient.send(UserGameCommand.CommandType.LEAVE);
+            return new UIData(UIType.LOGIN, "Returned to the login menu.");
+        } catch (IOException e) {
+            throw new UIException(false, "WebSocket threw an IOException.");
+        }
     }
 
     public static UIData quit() {
