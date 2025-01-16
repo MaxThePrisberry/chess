@@ -6,6 +6,9 @@ import ui.websocket.WSClient;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import static ui.EscapeSequences.*;
 import static ui.Variables.inGame;
@@ -26,8 +29,18 @@ public class GameplayUI extends ServerFacade {
         return new UIData(UIType.GAMEPLAY, output);
     }
 
-    public static void highlight() {
-
+    public static UIData highlight(String position) {
+        ChessPosition chessPosition = translatePosition(position);
+        ChessPiece piece = currentGame.getBoard().getPiece(chessPosition);
+        if (piece == null) {
+            return new UIData(UIType.GAMEPLAY, "No piece at given location.");
+        }
+        Set<ChessPosition> endPositions = new HashSet<ChessPosition>();
+        for (ChessMove move : currentGame.validMoves(chessPosition)) {
+            endPositions.add(move.getEndPosition());
+        }
+        return new UIData(UIType.GAMEPLAY, printHighlightedBoard(wsClient.color, currentGame.getBoard(), chessPosition,
+                endPositions));
     }
 
     public static void resign() {
@@ -180,6 +193,49 @@ public class GameplayUI extends ServerFacade {
                 } else {
                     output.append(SET_BG_COLOR_LIGHT_GREY);
                     ChessPiece piece = board.getPiece(new ChessPosition((normal ? 9-i : i), (normal ? j-1 : 9-(j-1))));
+                    if (piece != null) {
+                        output.append(getPieceRepresentation(piece.getPieceType(), piece.getTeamColor()));
+                    } else {
+                        output.append("   ");
+                    }
+                }
+            }
+        }
+        if (normal) {
+            output.append("   | A  B  C  D  E  F  G  H\n");
+        } else {
+            output.append("   | H  G  F  E  D  C  B  A\n");
+        }
+        return output.toString();
+    }
+
+    private static String printHighlightedBoard(String color, ChessBoard board, ChessPosition start, Set<ChessPosition> highlighted) {
+        boolean normal = color == null || color.equals("WHITE");
+
+        StringBuilder output = new StringBuilder("\r");
+        if (normal) {
+            output.append("\n # | A  B  C  D  E  F  G  H\n");
+        } else {
+            output.append("\n # | H  G  F  E  D  C  B  A\n");
+        }
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 11; j++) {
+                if (j == 1) {
+                    output.append(" ").append(normal ? 9 - i : i).append(" |");
+                } else if (j == 10) {
+                    output.append(RESET_BG_COLOR + "| ").append(normal ? 9 - i : i).append('\n');
+                } else {
+                    ChessPosition position = new ChessPosition((normal ? 9 - i : i), (normal ? j - 1 : 9 - (j - 1)));
+                    ChessPiece piece = board.getPiece(position);
+                    if (position.equals(start)) {
+                        output.append(SET_BG_COLOR_DARK_GREEN);
+                    } else if (highlighted.contains(position)) {
+                        output.append(SET_BG_COLOR_GREEN);
+                    } else if ((i + j) % 2 == 0) {
+                        output.append(SET_BG_COLOR_BLACK);
+                    } else {
+                        output.append(SET_BG_COLOR_LIGHT_GREY);
+                    }
                     if (piece != null) {
                         output.append(getPieceRepresentation(piece.getPieceType(), piece.getTeamColor()));
                     } else {
