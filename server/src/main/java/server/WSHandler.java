@@ -105,6 +105,10 @@ public class WSHandler {
                 gameRooms.get(command.getGameID()).values().removeIf(value -> value.equals(session));
             }
             case MAKE_MOVE -> {
+                if (data.game().isIsOver()) {
+                    sendError(session, "Game already over. No moves can be made.");
+                    return;
+                }
                 if ((data.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) && !user.username().equals(data.whiteUsername())) ||
                         (data.game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) && !user.username().equals(data.blackUsername()))) {
                     sendError(session, "Make moves on your own turn, buddy.");
@@ -112,6 +116,7 @@ public class WSHandler {
                 }
                 try {
                     data.game().makeMove(command.getMove());
+                    GameDAO.updateGame(data);
                 } catch (InvalidMoveException e) {
                     sendError(session, "Not a valid move, buddy.");
                     return;

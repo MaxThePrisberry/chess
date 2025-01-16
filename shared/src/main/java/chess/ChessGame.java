@@ -246,6 +246,9 @@ public class ChessGame {
         }
         board.logMove(move);
         turnColor = turnColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+        if (isInCheckmate(turnColor) || isInStalemate(turnColor)) {
+            isOver = true;
+        }
     }
 
     private ChessPosition getKingLocation(TeamColor teamColor) {
