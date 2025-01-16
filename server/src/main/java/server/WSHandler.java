@@ -1,8 +1,9 @@
 package server;
 
+import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import spark.Session;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +24,10 @@ public class WSHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
-
+        try {
+            session.getRemote().sendString(message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
