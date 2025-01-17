@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -24,7 +23,7 @@ public class WSHandler {
     public static Gson gson = new Gson();
 
     private static final String SERVER_ERROR_TEXT = "Server error.";
-    private static final String authErrorText = "No user registered with your session.";
+    private static final String AUTH_ERROR_TEXT = "No user registered with your session.";
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -62,7 +61,7 @@ public class WSHandler {
         try {
             user = AuthDAO.getAuth(command.getAuthToken());
         } catch (DataAccessException e) {
-            sendError(session, authErrorText);
+            sendError(session, AUTH_ERROR_TEXT);
             return;
         }
         GameData data = getGame(session, command.getGameID());
