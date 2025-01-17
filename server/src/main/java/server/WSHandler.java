@@ -41,9 +41,9 @@ public class WSHandler {
             if (gameRooms.get(key).containsValue(session)) {
                 try {
                     GameData game = GameDAO.getGame(key);
-                    if (game.whiteUsername().equals(sessions.get(session))) {
+                    if (game.whiteUsername() != null && game.whiteUsername().equals(sessions.get(session))) {
                         GameDAO.updateGame(key, null, game.blackUsername(), game.gameName(), game.game());
-                    } else if (game.blackUsername().equals(sessions.get(session))) {
+                    } else if (game.blackUsername() != null && game.blackUsername().equals(sessions.get(session))) {
                         GameDAO.updateGame(key, game.whiteUsername(), null, game.gameName(), game.game());
                     }
                 } catch (DataAccessException e) {
