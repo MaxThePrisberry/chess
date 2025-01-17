@@ -99,7 +99,7 @@ public abstract class ServerFacade {
             Map response;
             try (InputStream readStream = http.getInputStream()) {
                 InputStreamReader reader = new InputStreamReader(readStream);
-                response = gson.fromJson(reader, Map.class);
+                response = GSON.fromJson(reader, Map.class);
             }
             return response;
         } catch (ProtocolException e) {

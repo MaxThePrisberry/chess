@@ -29,10 +29,10 @@ public class WSClient extends Endpoint {
             @Override
             public void onMessage(String s) {
                 try {
-                    ServerMessage message = gson.fromJson(s, ServerMessage.class);
+                    ServerMessage message = GSON.fromJson(s, ServerMessage.class);
                     switch (message.getServerMessageType()) {
                         case LOAD_GAME -> {
-                            GameplayUI.currentGame = gson.fromJson(message.getGame(), ChessGame.class);
+                            GameplayUI.currentGame = GSON.fromJson(message.getGame(), ChessGame.class);
                             GameplayUI.redrawBoardComplete();
                         }
                         case ERROR -> {
@@ -51,13 +51,13 @@ public class WSClient extends Endpoint {
 
     public void send(UserGameCommand.CommandType commandType) throws IOException {
         UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
-        session.getBasicRemote().sendText(gson.toJson(command));
+        session.getBasicRemote().sendText(GSON.toJson(command));
     }
 
     public void send(UserGameCommand.CommandType commandType, ChessMove move) throws IOException {
         UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
         command.setMove(move);
-        session.getBasicRemote().sendText(gson.toJson(command));
+        session.getBasicRemote().sendText(GSON.toJson(command));
     }
 
     @Override

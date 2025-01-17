@@ -46,7 +46,7 @@ public class LoginUI extends ServerFacade {
         }
 
         Map<String, String> jsonMap = Map.of("gameName", gameName);
-        String data = gson.toJson(jsonMap);
+        String data = GSON.toJson(jsonMap);
 
         Map<String, Double> response = sendServer("/game", "POST", data);
 
@@ -81,7 +81,7 @@ public class LoginUI extends ServerFacade {
         }
 
         Map<String, String> jsonMap = Map.of("gameID", gameIDMap.get(Integer.parseInt(gameID)).toString(), "playerColor", playerColor);
-        String data = gson.toJson(jsonMap);
+        String data = GSON.toJson(jsonMap);
 
         sendServer("/game", "PUT", data);
 

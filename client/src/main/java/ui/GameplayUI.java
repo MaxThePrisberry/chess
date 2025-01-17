@@ -6,7 +6,6 @@ import ui.websocket.WSClient;
 import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -195,32 +194,42 @@ public class GameplayUI extends ServerFacade {
         return null;
     }
 
-    private static String printChessBoard(String color, ChessBoard board) {
-        boolean normal = color == null || color.equals("WHITE");
-
+    private static StringBuilder printTopLine(boolean normal) {
         StringBuilder output = new StringBuilder("\r");
         if (normal) {
             output.append("\n # | A  B  C  D  E  F  G  H\n");
         } else {
             output.append("\n # | H  G  F  E  D  C  B  A\n");
         }
+        return output;
+    }
+
+    private static void printBottomLine(boolean normal, StringBuilder builder) {
+        if (normal) {
+            builder.append("   | A  B  C  D  E  F  G  H\n");
+        } else {
+            builder.append("   | H  G  F  E  D  C  B  A\n");
+        }
+    }
+
+    private static String printChessBoard(String color, ChessBoard board) {
+        boolean normal = color == null || color.equals("WHITE");
+
+        StringBuilder output = printTopLine(normal);
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 11; j++) {
                 if (j == 1) {
                     output.append(" ").append(normal ? 9 - i : i).append(" |");
                 } else if (j == 10) {
                     output.append(RESET_BG_COLOR + "| ").append(normal ? 9 - i : i).append('\n');
-                } else if ((i + j) % 2 == 0) {
-                    output.append(SET_BG_COLOR_BLACK);
-                    ChessPiece piece = board.getPiece(new ChessPosition((normal ? 9-i : i), (normal ? j-1 : 9-(j-1))));
-                    if (piece != null) {
-                        output.append(getPieceRepresentation(piece.getPieceType(), piece.getTeamColor()));
-                    } else {
-                        output.append("   ");
-                    }
                 } else {
-                    output.append(SET_BG_COLOR_LIGHT_GREY);
-                    ChessPiece piece = board.getPiece(new ChessPosition((normal ? 9-i : i), (normal ? j-1 : 9-(j-1))));
+                    ChessPosition position = new ChessPosition((normal ? 9 - i : i), (normal ? j - 1 : 9 - (j - 1)));
+                    ChessPiece piece = board.getPiece(position);
+                    if ((i + j) % 2 == 0) {
+                        output.append(SET_BG_COLOR_BLACK);
+                    } else {
+                        output.append(SET_BG_COLOR_LIGHT_GREY);
+                    }
                     if (piece != null) {
                         output.append(getPieceRepresentation(piece.getPieceType(), piece.getTeamColor()));
                     } else {
@@ -229,11 +238,7 @@ public class GameplayUI extends ServerFacade {
                 }
             }
         }
-        if (normal) {
-            output.append("   | A  B  C  D  E  F  G  H\n");
-        } else {
-            output.append("   | H  G  F  E  D  C  B  A\n");
-        }
+        printBottomLine(normal, output);
         return output.toString();
     }
 

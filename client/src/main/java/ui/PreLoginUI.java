@@ -5,7 +5,7 @@ import ui.model.UIData;
 import java.util.Map;
 
 import static ui.Variables.authToken;
-import static ui.Variables.gson;
+import static ui.Variables.GSON;
 
 public class PreLoginUI extends ServerFacade {
 
@@ -24,7 +24,7 @@ public class PreLoginUI extends ServerFacade {
         }
 
         Map<String, String> jsonMap = Map.of("username", username, "password", password, "email", email);
-        String data = gson.toJson(jsonMap);
+        String data = GSON.toJson(jsonMap);
 
         Map<String, String> response = sendServer("/user", "POST", data);
 
@@ -42,7 +42,7 @@ public class PreLoginUI extends ServerFacade {
         }
 
         Map<String, String> jsonMap = Map.of("username", username, "password", password);
-        String data = gson.toJson(jsonMap);
+        String data = GSON.toJson(jsonMap);
 
         Map<String, String> response = sendServer("/session", "POST", data);
 

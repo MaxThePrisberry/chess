@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class GameDAO {
 
-    private static final Gson GSON = new Gson();
+    private static final Gson gson = new Gson();
 
     public static void setUp() {
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -57,7 +57,7 @@ public class GameDAO {
             createStatement.setString(2, blackUsername);
         }
         createStatement.setString(3, gameName);
-        createStatement.setString(4, GSON.toJson(game));
+        createStatement.setString(4, gson.toJson(game));
     }
 
     public static GameData getGame(int gameID) throws DataAccessException {
@@ -67,7 +67,7 @@ public class GameDAO {
                 statement.setInt(1, gameID);
                 ResultSet res = statement.executeQuery();
                 if (res.next()) {
-                    ChessGame game = GSON.fromJson(res.getString("chess_game"), ChessGame.class);
+                    ChessGame game = gson.fromJson(res.getString("chess_game"), ChessGame.class);
                     return new GameData(Integer.parseInt(res.getString("game_id")), res.getString("white_username"), res.getString("black_username"), res.getString("game_name"), game);
                 }
             }
@@ -83,7 +83,7 @@ public class GameDAO {
                 ResultSet res = statement.executeQuery();
                 Set<GameData> games = new HashSet<>();
                 while (res.next()) {
-                    ChessGame game = GSON.fromJson(res.getString("chess_game"), ChessGame.class);
+                    ChessGame game = gson.fromJson(res.getString("chess_game"), ChessGame.class);
                     games.add(new GameData(res.getInt("game_id"), res.getString("white_username"), res.getString("black_username"), res.getString("game_name"), game));
                 }
                 return games;

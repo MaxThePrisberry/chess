@@ -238,13 +238,13 @@ public class DOATests {
     @Test
     @DisplayName("Get Game Valid Test")
     void getGameValid() throws DataAccessException {
-        ChessGame chessGame = new ChessGame();
-        int gameID = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chessGame);
+        ChessGame chess_game = new ChessGame();
+        int gameID = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
         GameData game = GameDAO.getGame(gameID);
         assertEquals("Potato", game.whiteUsername());
         assertEquals("Carrot", game.blackUsername());
         assertEquals("Fruit Fight", game.gameName());
-        assertEquals(chessGame, game.game());
+        assertEquals(chess_game, game.game());
     }
 
     @Test
