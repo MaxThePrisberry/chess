@@ -13,7 +13,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static dataaccess.DOATests.clearDatabase;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
