@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static dataaccess.DOATests.clearDatabase;
 import static org.junit.jupiter.api.Assertions.*;
 import static ui.Variables.serverLocation;
 import static ui.Variables.authToken;
@@ -37,19 +38,7 @@ public class ServerFacadeTests {
         GameDAO.setUp();
         AuthDAO.setUp();
 
-        try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE auths;")) {
-                statement.executeUpdate();
-            } catch (SQLException ignored) {}
-            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE games;")) {
-                statement.executeUpdate();
-            }
-            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
-                statement.executeUpdate();
-            }
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException ignored) {}
+        clearDatabase();
     }
 
     @AfterAll

@@ -42,6 +42,10 @@ public class DOATests {
         GameDAO.setUp();
         AuthDAO.setUp();
 
+        clearDatabase();
+    }
+
+    public static void clearDatabase() {
         try (Connection conn = DatabaseManager.getConnection()){
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE auths;")) {
                 statement.executeUpdate();
