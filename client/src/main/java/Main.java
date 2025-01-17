@@ -36,13 +36,15 @@ public class Main {
                 System.out.println(result.output());
                 System.out.print("\n>>> ");
             } catch (NoSuchMethodException | IllegalAccessException e) {
-                System.out.print("There was an error executing your command. Is it a valid option in ['help']? Did you enter the right number of parameters? Please try again.\n>>> ");
+                System.out.print("There was an error executing your command. Is it a valid option in ['help']? Did you " +
+                        "enter the right number of parameters? Please try again.\n>>> ");
             } catch (InvocationTargetException e) {
                 if (e.getCause() instanceof UIException) {
                     if (((UIException) e.getCause()).userCaused) {
                         System.out.print(e.getCause().getMessage() + "\n\n>>> ");
                     } else {
-                        System.out.print("A server communication error has occurred. Try again in a moment. " + e.getCause().getMessage() + "\n>>> ");
+                        System.out.print("A server communication error has occurred. Try again in a moment. " +
+                                e.getCause().getMessage() + "\n>>> ");
                     }
                 } else {
                     System.out.print("A wild exception has appeared! Give up hope.\n" + e.getCause().getMessage() + "\n>>> ");

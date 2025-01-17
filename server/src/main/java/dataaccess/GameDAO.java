@@ -45,7 +45,8 @@ public class GameDAO {
         }
     }
 
-    private static void handleNullUsernames(String whiteUsername, String blackUsername, String gameName, ChessGame game, PreparedStatement createStatement) throws SQLException {
+    private static void handleNullUsernames(String whiteUsername, String blackUsername, String gameName, ChessGame game,
+                                            PreparedStatement createStatement) throws SQLException {
         if (whiteUsername == null) {
             createStatement.setNull(1, Types.VARCHAR);
         } else {
@@ -68,7 +69,9 @@ public class GameDAO {
                 ResultSet res = statement.executeQuery();
                 if (res.next()) {
                     ChessGame game = GSON.fromJson(res.getString("chess_game"), ChessGame.class);
-                    return new GameData(Integer.parseInt(res.getString("game_id")), res.getString("white_username"), res.getString("black_username"), res.getString("game_name"), game);
+                    return new GameData(Integer.parseInt(res.getString("game_id")),
+                            res.getString("white_username"), res.getString("black_username"),
+                            res.getString("game_name"), game);
                 }
             }
         } catch (DataAccessException | SQLException e) {
@@ -84,7 +87,8 @@ public class GameDAO {
                 Set<GameData> games = new HashSet<>();
                 while (res.next()) {
                     ChessGame game = GSON.fromJson(res.getString("chess_game"), ChessGame.class);
-                    games.add(new GameData(res.getInt("game_id"), res.getString("white_username"), res.getString("black_username"), res.getString("game_name"), game));
+                    games.add(new GameData(res.getInt("game_id"), res.getString("white_username"),
+                            res.getString("black_username"), res.getString("game_name"), game));
                 }
                 return games;
             }
@@ -104,7 +108,9 @@ public class GameDAO {
                 statement.setInt(1, gameID);
                 ResultSet res = statement.executeQuery();
                 if (res.next()) {
-                    try (PreparedStatement updateStatement = conn.prepareStatement("UPDATE games SET white_username = ?, black_username = ?, game_name = ?, chess_game = ? WHERE game_id = ?;")) {
+                    try (PreparedStatement updateStatement =
+                                 conn.prepareStatement("UPDATE games SET white_username = ?, black_username = ?," +
+                                         " game_name = ?, chess_game = ? WHERE game_id = ?;")) {
                         handleNullUsernames(whiteUsername, blackUsername, gameName, game, updateStatement);
                         updateStatement.setInt(5, gameID);
                         updateStatement.executeUpdate();
