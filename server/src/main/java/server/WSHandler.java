@@ -23,8 +23,8 @@ public class WSHandler {
     public static Map<Integer, Map<String, Session>> gameRooms = new HashMap<>();
     public static Gson gson = new Gson();
 
-    private static final String serverErrorText = "Server error.";
-    private static final String authErrorText = "No user registered with your session.";
+    private static final String SERVER_ERROR_TEXT = "Server error.";
+    private static final String AUTH_ERROR_TEXT = "No user registered with your session.";
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
@@ -62,7 +62,7 @@ public class WSHandler {
         try {
             user = AuthDAO.getAuth(command.getAuthToken());
         } catch (DataAccessException e) {
-            sendError(session, authErrorText);
+            sendError(session, AUTH_ERROR_TEXT);
             return;
         }
         GameData data = getGame(session, command.getGameID());
@@ -96,7 +96,7 @@ public class WSHandler {
                 try {
                     session.getRemote().sendString(gson.toJson(response));
                 } catch (IOException e) {
-                    sendError(session, serverErrorText);
+                    sendError(session, SERVER_ERROR_TEXT);
                 }
                 if (gameRooms.containsKey(command.getGameID())) {
                     gameRooms.get(command.getGameID()).put(user.username(), session);
@@ -141,7 +141,7 @@ public class WSHandler {
                     try {
                         value.getRemote().sendString(gson.toJson(response));
                     } catch (IOException e) {
-                        sendError(session, serverErrorText);
+                        sendError(session, SERVER_ERROR_TEXT);
                     }
                 });
             }
@@ -167,7 +167,7 @@ public class WSHandler {
                 try {
                     session.getRemote().sendString(gson.toJson(loadNewGamestate));
                 } catch (IOException e) {
-                    sendError(session, serverErrorText);
+                    sendError(session, SERVER_ERROR_TEXT);
                 }
                 sendOtherClients(session, command, loadNewGamestate);
                 ServerMessage loadMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -217,7 +217,7 @@ public class WSHandler {
                 try {
                     value.getRemote().sendString(notification);
                 } catch (IOException e) {
-                    sendError(session, serverErrorText);
+                    sendError(session, SERVER_ERROR_TEXT);
                 }
             }
         });
@@ -238,7 +238,7 @@ public class WSHandler {
         try {
             session.getRemote().sendString(gson.toJson(message));
         } catch (IOException e) {
-            sendError(session, serverErrorText);
+            sendError(session, SERVER_ERROR_TEXT);
         }
     }
 }
