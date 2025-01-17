@@ -133,10 +133,10 @@ public class WSHandler {
                     ServerMessage response;
                     if (key.equals(otherUsername)) {
                         response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                        response.setMessage("Your opponent " + otherUsername + " has resigned. You win!");
+                        response.setMessage("Your opponent " + user.username() + " has resigned. You win!");
                     } else {
                         response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                        response.setMessage("The player " + otherUsername + " has resigned.");
+                        response.setMessage("The player " + user.username() + " has resigned.");
                     }
                     try {
                         value.getRemote().sendString(gson.toJson(response));
