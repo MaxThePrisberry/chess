@@ -19,7 +19,7 @@ import java.util.*;
 @WebSocket
 public class WSHandler {
 
-    public static Map<String, Session> sessions = new HashMap<>();
+    public static Map<Session, String> sessions = new HashMap<>();
     public static Map<Integer, Map<String, Session>> gameRooms = new HashMap<>();
     public static Gson gson = new Gson();
 
@@ -34,6 +34,25 @@ public class WSHandler {
     @OnWebSocketError
     public void onError(Session session, Throwable throwable) {
         System.out.println("Error: " + throwable.getMessage());
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int status, String message) {
+        for (int key : gameRooms.keySet()) {
+            if (gameRooms.get(key).containsValue(session)) {
+                try {
+                    GameData game = GameDAO.getGame(key);
+                    if (game.whiteUsername().equals(sessions.get(session))) {
+                        GameDAO.updateGame(key, null, game.blackUsername(), game.gameName(), game.game());
+                    } else if (game.blackUsername().equals(sessions.get(session))) {
+                        GameDAO.updateGame(key, game.whiteUsername(), null, game.gameName(), game.game());
+                    }
+                } catch (DataAccessException e) {
+                    sendError(session, "Error removing user from game.");
+                }
+                gameRooms.get(key).values().removeIf(value -> value.equals(session));
+            }
+        }
     }
 
     @OnWebSocketMessage
@@ -71,7 +90,7 @@ public class WSHandler {
                         sendError(session, "Can't join as a color not available.");
                     }
                 }
-                sessions.put(user.username(), session);
+                sessions.put(session, user.username());
                 ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 response.setGame(gson.toJson(data.game()));
                 try {
@@ -125,7 +144,6 @@ public class WSHandler {
                         sendError(session, serverErrorText);
                     }
                 });
-                gameRooms.get(command.getGameID()).values().removeIf(value -> value.equals(session));
             }
             case MAKE_MOVE -> {
                 if (data.game().isIsOver()) {

@@ -8,6 +8,7 @@ import websocket.commands.UserGameCommand;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 import static ui.EscapeSequences.*;
@@ -19,13 +20,22 @@ public class GameplayUI extends ServerFacade {
     public static ChessGame currentGame;
 
     public static UIData help() {
-        String output = """
-                redraw - redraws the chess board
-                move <START POSITION> <END POSITION> - make a move in the game
-                resign - resign from the game (you lose)
-                highlight <PIECE> - highlight valid moves for the given piece
-                leave - leave the game and return to login options
-                help - see available commands""";
+        String output;
+        if (inGame) {
+            output = """
+                    redraw - redraws the chess board
+                    highlight <PIECE> - highlight valid moves for the given piece
+                    leave - leave the game and return to login options
+                    help - see available commands""";
+        } else {
+            output = """
+                    redraw - redraws the chess board
+                    move <START POSITION> <END POSITION> - make a move in the game
+                    resign - resign from the game (you lose)
+                    highlight <PIECE> - highlight valid moves for the given piece
+                    leave - leave the game and return to login options
+                    help - see available commands""";
+        }
         return new UIData(UIType.GAMEPLAY, output);
     }
 
@@ -43,8 +53,23 @@ public class GameplayUI extends ServerFacade {
                 endPositions));
     }
 
-    public static void resign() {
-
+    public static UIData resign() {
+        if (wsClient.color == null) {
+            throw new UIException(true, "Cannot resign as observer.");
+        }
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Are you sure you want to resign? Y/n");
+        String input = scanner.nextLine().toLowerCase();
+        if (!input.equals("n")) {
+            try {
+                wsClient.send(UserGameCommand.CommandType.RESIGN);
+                return new UIData(UIType.GAMEPLAY, "You have resigned.");
+            } catch (IOException e) {
+                throw new UIException(false, "WebSocket send resign error.");
+            }
+        } else {
+            return new UIData(UIType.GAMEPLAY, "Resign cancelled.");
+        }
     }
 
     private static ChessPosition translatePosition(String given) {
@@ -71,12 +96,15 @@ public class GameplayUI extends ServerFacade {
     }
 
     public static UIData move(String start, String end) {
+        if (wsClient.color == null) {
+            throw new UIException(true, "Cannot move as observer.");
+        }
         ChessPosition endPosition = translatePosition(end);
         for (ChessMove move : currentGame.validMoves(translatePosition(start))) {
             if (move.getEndPosition().equals(endPosition)) {
                 try {
                     wsClient.send(UserGameCommand.CommandType.MAKE_MOVE, move);
-                    return new UIData(UIType.GAMEPLAY, "Piece moved successfully.");
+                    return new UIData(UIType.GAMEPLAY, "");
                 } catch (IOException e) {
                     throw new UIException(false, "Error sending move over websocket.");
                 }

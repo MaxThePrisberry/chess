@@ -1,3 +1,4 @@
+import ui.GameplayUI;
 import ui.PreLoginUI;
 import ui.UIException;
 import ui.ServerFacade;
@@ -7,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Scanner;
+
+import static ui.Variables.inGame;
 
 public class Main {
     public static void main(String[] args) {
@@ -28,9 +31,9 @@ public class Main {
 
                 Method targetMethod = userUI.getMethod(line[0].toLowerCase(), parameterClassTypes);
                 UIData result = (UIData) targetMethod.invoke(null, (Object[]) Arrays.copyOfRange(line, 1, line.length));
-                System.out.println(result.output());
                 userUI = result.uiType().getUIClass();
 
+                System.out.println(result.output());
                 System.out.print("\n>>> ");
             } catch (NoSuchMethodException | IllegalAccessException e) {
                 System.out.print("There was an error executing your command. Is it a valid option in ['help']? Did you enter the right number of parameters? Please try again.\n>>> ");

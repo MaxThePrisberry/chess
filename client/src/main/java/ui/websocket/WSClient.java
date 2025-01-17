@@ -4,9 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import ui.GameplayUI;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerError;
 import websocket.messages.ServerMessage;
-import websocket.messages.ServerNotification;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -37,12 +35,10 @@ public class WSClient extends Endpoint {
                             GameplayUI.redrawBoardComplete();
                         }
                         case ERROR -> {
-                            GameplayUI.displayErrorNotification("Error: " + gson.fromJson(message.getGame(),
-                                    ServerError.class).errorMessage());
+                            GameplayUI.displayErrorNotification("Error: " + message.getErrorMessage());
                         }
                         case NOTIFICATION -> {
-                            GameplayUI.displayNotification(gson.fromJson(message.getGame(),
-                                    ServerNotification.class).notification());
+                            GameplayUI.displayNotification(message.getMessage());
                         }
                     }
                 } catch (Exception e) {
