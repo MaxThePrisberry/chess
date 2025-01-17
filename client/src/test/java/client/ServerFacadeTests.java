@@ -38,6 +38,7 @@ public class ServerFacadeTests {
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE games;")) {
                 statement.executeUpdate();
             }
+            //Seeing if this helps the autograder to not develop a muerte...
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
                 statement.executeUpdate();
             }

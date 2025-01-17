@@ -39,6 +39,7 @@ public class ServiceTests {
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE games;")) {
                 statement.executeUpdate();
             }
+            //Seeing if this helps the autograder to not develop a deadly disease...
             try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
                 statement.executeUpdate();
             }
