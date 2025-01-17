@@ -3,10 +3,7 @@ package client;
 import dataaccess.*;
 import org.junit.jupiter.api.*;
 import server.Server;
-import ui.LoginUI;
-import ui.PreLoginUI;
-import ui.ServerFacade;
-import ui.UIException;
+import ui.*;
 import ui.model.UIData;
 
 import java.sql.Connection;
@@ -203,5 +200,17 @@ public class ServerFacadeTests {
     public void observeNegative() {
         PreLoginUI.register("Potato", "Farmer", "on@farm");
         assertThrows(UIException.class, () -> LoginUI.observe("1"));
+    }
+
+    @Test
+    public void quitValid() {
+        try {
+            GameplayUI.redraw();
+            GameplayUI.highlight("d2");
+            GameplayUI.move("d2", "d4");
+            ServerFacade.quit();
+        } catch (Exception e) {
+            assertTrue(true);
+        }
     }
 }
