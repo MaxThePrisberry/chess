@@ -79,7 +79,7 @@ public abstract class ServerFacade {
         URI uri;
         HttpURLConnection http;
         try {
-            uri = new URI(SERVER_LOCATION + endpoint);
+            uri = new URI(serverLocation + endpoint);
             http = (HttpURLConnection) uri.toURL().openConnection();
             http.setRequestMethod(method);
             if (authToken != null && !authToken.isBlank()) {

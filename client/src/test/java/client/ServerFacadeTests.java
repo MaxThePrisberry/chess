@@ -14,7 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ui.Variables.SERVER_LOCATION;
+import static ui.Variables.serverLocation;
 import static ui.Variables.authToken;
 
 
@@ -27,7 +27,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        SERVER_LOCATION = "http://localhost:" + port;
+        serverLocation = "http://localhost:" + port;
     }
 
     @BeforeEach
