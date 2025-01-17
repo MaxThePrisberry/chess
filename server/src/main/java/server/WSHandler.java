@@ -68,113 +68,129 @@ public class WSHandler {
         if (data == null) {return;}
         switch (command.getCommandType()) {
             case LEAVE -> {
-                if (user.username().equals(data.whiteUsername())) {
-                    GameDAO.updateGame(data.gameID(), null, data.blackUsername(), data.gameName(), data.game());
-                } else if (user.username().equals(data.blackUsername())) {
-                    GameDAO.updateGame(data.gameID(), data.whiteUsername(), null, data.gameName(), data.game());
-                }
-                gameRooms.get(command.getGameID()).values().removeIf(value -> value.equals(session));
-                ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                tmp.setMessage("User " + user.username() + " has left the game.");
-                sendOtherClients(session, command, tmp);
-                session.close();
+                handleLeave(session, user, data, command);
             }
             case CONNECT -> {
-                if (command.getColor() != null) {
-                    if (command.getColor().equals("WHITE") && data.whiteUsername() == null) {
-                        GameDAO.updateGame(data.gameID(), user.username(), data.blackUsername(), data.gameName(), data.game());
-                    } else if (command.getColor().equals("BLACK") && data.blackUsername() == null) {
-                        GameDAO.updateGame(data.gameID(), data.whiteUsername(), user.username(), data.gameName(), data.game());
-                    } else {
-                        sendError(session, "Can't join as a color not available.");
-                    }
-                }
-                sessions.put(session, user.username());
-                ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-                response.setGame(gson.toJson(data.game()));
-                try {
-                    session.getRemote().sendString(gson.toJson(response));
-                } catch (IOException e) {
-                    sendError(session, SERVER_ERROR_TEXT);
-                }
-                if (gameRooms.containsKey(command.getGameID())) {
-                    gameRooms.get(command.getGameID()).put(user.username(), session);
-                } else {
-                    gameRooms.put(command.getGameID(), new HashMap<>(Map.of(user.username(), session)));
-                }
-                ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                if (command.getColor() != null) {
-                    String color = data.whiteUsername().equals(user.username()) ? "WHITE" : "BLACK";
-                    tmp.setMessage("User " + user.username() + " has joined the game as color " + color + ".");
-                } else {
-                    tmp.setMessage("User " + user.username() + " is observing this game.");
-                }
-                sendOtherClients(session, command, tmp);
+                handleConnect(session, command, data, user);
             }
             case RESIGN -> {
-                String otherUsername;
-                if (user.username().equals(data.whiteUsername())) {
-                    otherUsername = data.blackUsername();
-                } else if (user.username().equals(data.blackUsername())) {
-                    otherUsername = data.whiteUsername();
-                } else {
-                    sendError(session, "Cannot resign as observer.");
-                    return;
-                }
-                if (data.game().isIsOver()) {
-                    sendError(session, "Game already over.");
-                    return;
-                } else {
-                    data.game().setIsOver(true);
-                    GameDAO.updateGame(data);
-                }
-                gameRooms.get(command.getGameID()).forEach((key, value) -> {
-                    ServerMessage response;
-                    if (key.equals(otherUsername)) {
-                        response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                        response.setMessage("Your opponent " + user.username() + " has resigned. You win!");
-                    } else {
-                        response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                        response.setMessage("The player " + user.username() + " has resigned.");
-                    }
-                    try {
-                        value.getRemote().sendString(gson.toJson(response));
-                    } catch (IOException e) {
-                        sendError(session, SERVER_ERROR_TEXT);
-                    }
-                });
+                handleResign(session, user, data, command);
             }
             case MAKE_MOVE -> {
-                if (data.game().isIsOver()) {
-                    sendError(session, "Game already over. No moves can be made.");
-                    return;
-                }
-                if ((data.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) && !user.username().equals(data.whiteUsername())) ||
-                        (data.game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) && !user.username().equals(data.blackUsername()))) {
-                    sendError(session, "Make moves on your own turn, buddy.");
-                    return;
-                }
-                try {
-                    data.game().makeMove(command.getMove());
-                    GameDAO.updateGame(data);
-                } catch (InvalidMoveException e) {
-                    sendError(session, "Not a valid move, buddy.");
-                    return;
-                }
-                ServerMessage loadNewGamestate = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-                loadNewGamestate.setGame(gson.toJson(data.game()));
-                try {
-                    session.getRemote().sendString(gson.toJson(loadNewGamestate));
-                } catch (IOException e) {
-                    sendError(session, SERVER_ERROR_TEXT);
-                }
-                sendOtherClients(session, command, loadNewGamestate);
-                ServerMessage loadMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                loadMessage.setMessage("The move " + translateChessPosition(command.getMove().getStartPosition()) +
-                        " to " + translateChessPosition(command.getMove().getEndPosition()) + " was made.");
-                sendOtherClients(session, command, loadMessage);
+                handleMove(session, data, user, command);
             }
         }
+    }
+
+    private void handleMove(Session session, GameData data, AuthData user, UserGameCommand command) {
+        if (data.game().isIsOver()) {
+            sendError(session, "Game already over. No moves can be made.");
+            return;
+        }
+        if ((data.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) && !user.username().equals(data.whiteUsername())) ||
+                (data.game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) && !user.username().equals(data.blackUsername()))) {
+            sendError(session, "Make moves on your own turn, buddy.");
+            return;
+        }
+        try {
+            data.game().makeMove(command.getMove());
+            GameDAO.updateGame(data);
+        } catch (InvalidMoveException e) {
+            sendError(session, "Not a valid move, buddy.");
+            return;
+        }
+        ServerMessage loadNewGamestate = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        loadNewGamestate.setGame(gson.toJson(data.game()));
+        try {
+            session.getRemote().sendString(gson.toJson(loadNewGamestate));
+        } catch (IOException e) {
+            sendError(session, SERVER_ERROR_TEXT);
+        }
+        sendOtherClients(session, command, loadNewGamestate);
+        ServerMessage loadMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        loadMessage.setMessage("The move " + translateChessPosition(command.getMove().getStartPosition()) +
+                " to " + translateChessPosition(command.getMove().getEndPosition()) + " was made.");
+        sendOtherClients(session, command, loadMessage);
+    }
+
+    private void handleResign(Session session, AuthData user, GameData data, UserGameCommand command) {
+        String otherUsername;
+        if (user.username().equals(data.whiteUsername())) {
+            otherUsername = data.blackUsername();
+        } else if (user.username().equals(data.blackUsername())) {
+            otherUsername = data.whiteUsername();
+        } else {
+            sendError(session, "Cannot resign as observer.");
+            return;
+        }
+        if (data.game().isIsOver()) {
+            sendError(session, "Game already over.");
+            return;
+        } else {
+            data.game().setIsOver(true);
+            GameDAO.updateGame(data);
+        }
+        gameRooms.get(command.getGameID()).forEach((key, value) -> {
+            ServerMessage response;
+            if (key.equals(otherUsername)) {
+                response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                response.setMessage("Your opponent " + user.username() + " has resigned. You win!");
+            } else {
+                response = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                response.setMessage("The player " + user.username() + " has resigned.");
+            }
+            try {
+                value.getRemote().sendString(gson.toJson(response));
+            } catch (IOException e) {
+                sendError(session, SERVER_ERROR_TEXT);
+            }
+        });
+    }
+
+    private void handleConnect(Session session, UserGameCommand command, GameData data, AuthData user) {
+        if (command.getColor() != null) {
+            if (command.getColor().equals("WHITE") && data.whiteUsername() == null) {
+                GameDAO.updateGame(data.gameID(), user.username(), data.blackUsername(), data.gameName(), data.game());
+            } else if (command.getColor().equals("BLACK") && data.blackUsername() == null) {
+                GameDAO.updateGame(data.gameID(), data.whiteUsername(), user.username(), data.gameName(), data.game());
+            } else {
+                sendError(session, "Can't join as a color not available.");
+            }
+        }
+        sessions.put(session, user.username());
+        ServerMessage response = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        response.setGame(gson.toJson(data.game()));
+        try {
+            session.getRemote().sendString(gson.toJson(response));
+        } catch (IOException e) {
+            sendError(session, SERVER_ERROR_TEXT);
+        }
+        if (gameRooms.containsKey(command.getGameID())) {
+            gameRooms.get(command.getGameID()).put(user.username(), session);
+        } else {
+            gameRooms.put(command.getGameID(), new HashMap<>(Map.of(user.username(), session)));
+        }
+        ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        if (command.getColor() != null) {
+            String color = data.whiteUsername().equals(user.username()) ? "WHITE" : "BLACK";
+            tmp.setMessage("User " + user.username() + " has joined the game as color " + color + ".");
+        } else {
+            tmp.setMessage("User " + user.username() + " is observing this game.");
+        }
+        sendOtherClients(session, command, tmp);
+    }
+
+    private void handleLeave(Session session, AuthData user, GameData data, UserGameCommand command) {
+        if (user.username().equals(data.whiteUsername())) {
+            GameDAO.updateGame(data.gameID(), null, data.blackUsername(), data.gameName(), data.game());
+        } else if (user.username().equals(data.blackUsername())) {
+            GameDAO.updateGame(data.gameID(), data.whiteUsername(), null, data.gameName(), data.game());
+        }
+        gameRooms.get(command.getGameID()).values().removeIf(value -> value.equals(session));
+        ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        tmp.setMessage("User " + user.username() + " has left the game.");
+        sendOtherClients(session, command, tmp);
+        session.close();
     }
 
     private String translateChessPosition(ChessPosition pos) {
