@@ -32,6 +32,22 @@ public class ServiceTests {
         DatabaseManager.createDatabase();
     }
 
+    private void clearDatabase() {
+        try (Connection conn = DatabaseManager.getConnection()){
+            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE auths;")) {
+                statement.executeUpdate();
+            } catch (SQLException ignored) {}
+            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE games;")) {
+                statement.executeUpdate();
+            }
+            try (PreparedStatement statement = conn.prepareStatement("TRUNCATE TABLE users;")) {
+                statement.executeUpdate();
+            }
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException ignored) {}
+    }
+
     @BeforeEach
     void setUp() {
         clearDatabase();
