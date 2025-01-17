@@ -141,11 +141,12 @@ public class LoginUI extends ServerFacade {
         try {
             if (color == null) {
                 GameplayUI.wsClient = new WSClient(gameID, null);
+                GameplayUI.wsClient.send(UserGameCommand.CommandType.CONNECT);
             } else {
                 GameplayUI.wsClient = new WSClient(gameID, color);
+                GameplayUI.wsClient.send(UserGameCommand.CommandType.CONNECT, color);
             }
             inGame = true;
-            GameplayUI.wsClient.send(UserGameCommand.CommandType.CONNECT);
         } catch (IOException | DeploymentException | URISyntaxException e) {
             throw new UIException(false, "WebSocket failed to setup correctly. " + e.getMessage());
         }

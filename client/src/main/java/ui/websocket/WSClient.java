@@ -54,6 +54,12 @@ public class WSClient extends Endpoint {
         session.getBasicRemote().sendText(GSON.toJson(command));
     }
 
+    public void send(UserGameCommand.CommandType commandType, String color) throws IOException {
+        UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
+        command.setColor(color);
+        session.getBasicRemote().sendText(GSON.toJson(command));
+    }
+
     public void send(UserGameCommand.CommandType commandType, ChessMove move) throws IOException {
         UserGameCommand command = new UserGameCommand(commandType, authToken, gameID);
         command.setMove(move);

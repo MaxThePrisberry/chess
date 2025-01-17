@@ -20,7 +20,7 @@ public class GameplayUI extends ServerFacade {
 
     public static UIData help() {
         String output;
-        if (inGame) {
+        if (inGame && wsClient.color == null) {
             output = """
                     redraw - redraws the chess board
                     highlight <PIECE> - highlight valid moves for the given piece
