@@ -256,13 +256,13 @@ public class DOATests {
     @Test
     @DisplayName("List Games Valid Test")
     void listGamesValid() {
-        ChessGame chess_game = new ChessGame();
-        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
-        int gameID2 = GameDAO.createGame("Peanut Butter", "Celery", "Banana Bowl", chess_game);
+        ChessGame chessGame = new ChessGame();
+        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chessGame);
+        int gameID2 = GameDAO.createGame("Peanut Butter", "Celery", "Banana Bowl", chessGame);
 
         Set<GameData> expected = new HashSet<>();
-        expected.add(new GameData(gameID1, "Potato", "Carrot", "Fruit Fight", chess_game));
-        expected.add(new GameData(gameID2, "Peanut Butter", "Celery", "Banana Bowl", chess_game));
+        expected.add(new GameData(gameID1, "Potato", "Carrot", "Fruit Fight", chessGame));
+        expected.add(new GameData(gameID2, "Peanut Butter", "Celery", "Banana Bowl", chessGame));
 
         Set<GameData> actual = assertDoesNotThrow(GameDAO::listGames);
 
@@ -272,25 +272,25 @@ public class DOATests {
     @Test
     @DisplayName("Update Game Valid Test")
     void updateGameValid() throws InvalidMoveException, DataAccessException {
-        ChessGame chess_game = new ChessGame();
-        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
+        ChessGame chessGame = new ChessGame();
+        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chessGame);
 
-        chess_game.makeMove(new ChessMove(new ChessPosition(2, 5), new ChessPosition(4, 5), null));
-        assertDoesNotThrow(() -> GameDAO.updateGame(gameID1, "Peanut Butter", "Celery", "Banana Bowl", chess_game));
+        chessGame.makeMove(new ChessMove(new ChessPosition(2, 5), new ChessPosition(4, 5), null));
+        assertDoesNotThrow(() -> GameDAO.updateGame(gameID1, "Peanut Butter", "Celery", "Banana Bowl", chessGame));
 
         GameData game = GameDAO.getGame(gameID1);
 
         assertEquals("Peanut Butter", game.whiteUsername());
         assertEquals("Celery", game.blackUsername());
         assertEquals("Banana Bowl", game.gameName());
-        assertEquals(chess_game, game.game());
+        assertEquals(chessGame, game.game());
     }
 
     @Test
     @DisplayName("Update Game Invalid Inputs")
     void updateGameInvalidInputs() throws InvalidMoveException {
-        ChessGame chess_game = new ChessGame();
-        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chess_game);
+        ChessGame chessGame = new ChessGame();
+        int gameID1 = GameDAO.createGame("Potato", "Carrot", "Fruit Fight", chessGame);
 
         assertThrows(RuntimeException.class, () -> GameDAO.updateGame(gameID1, null, "Celery", null, null));
     }
