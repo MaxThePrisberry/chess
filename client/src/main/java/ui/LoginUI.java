@@ -20,10 +20,10 @@ public class LoginUI extends ServerFacade {
     public static UIData help() {
         String output = """
                 logout - end session and return to the login interface
-                create - make a new chess game to play
+                create <GAME NAME> - make a new chess game to play
                 list - list all live chess games
-                join - join a live chess game
-                observe - observe a live chess game
+                join <GAME ID> <WHITE|BLACK> - join a live chess game
+                observe <GAME ID> - observe a live chess game
                 quit - exit this chess program
                 help - see available commands""";
         return new UIData(UIType.LOGIN, output);
