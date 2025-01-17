@@ -9,6 +9,7 @@ import websocket.messages.ServerMessage;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import static ui.Variables.*;
 
@@ -18,7 +19,7 @@ public class WSClient extends Endpoint {
     public String color;
     public int gameID;
 
-    public WSClient(int gameID, String color) throws Exception {
+    public WSClient(int gameID, String color) throws URISyntaxException, DeploymentException, IOException {
         this.gameID = gameID;
         this.color = color;
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();

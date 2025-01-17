@@ -146,7 +146,7 @@ public class LoginUI extends ServerFacade {
             }
             inGame = true;
             GameplayUI.wsClient.send(UserGameCommand.CommandType.CONNECT);
-        } catch (Exception e) {
+        } catch (IOException | DeploymentException | URISyntaxException e) {
             throw new UIException(false, "WebSocket failed to setup correctly. " + e.getMessage());
         }
     }
