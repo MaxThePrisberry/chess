@@ -55,7 +55,7 @@ public class WSHandler {
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) {
+    public void onMessage(Session session, String message) throws IOException {
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         AuthData user;
         try {
@@ -82,13 +82,14 @@ public class WSHandler {
         }
     }
 
-    private void handleMove(Session session, GameData data, AuthData user, UserGameCommand command) {
+    private void handleMove(Session session, GameData data, AuthData user, UserGameCommand command) throws IOException {
         if (data.game().isIsOver()) {
             sendError(session, "Game already over. No moves can be made.");
             return;
         }
-        if ((data.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) && !user.username().equals(data.whiteUsername())) ||
-                (data.game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) && !user.username().equals(data.blackUsername()))) {
+        ChessGame.TeamColor playerColor = user.username().equals(data.whiteUsername()) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        if ((data.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) && !playerColor.equals(ChessGame.TeamColor.WHITE)) ||
+                (data.game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) && !playerColor.equals(ChessGame.TeamColor.BLACK))) {
             sendError(session, "Make moves on your own turn, buddy.");
             return;
         }
@@ -109,7 +110,25 @@ public class WSHandler {
         sendOtherClients(session, command, loadNewGamestate);
         ServerMessage loadMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         loadMessage.setMessage("The move " + translateChessPosition(command.getMove().getStartPosition()) +
-                " to " + translateChessPosition(command.getMove().getEndPosition()) + " was made.");
+                " to " + translateChessPosition(command.getMove().getEndPosition()) + " was made by " + user.username() + ".");
+        String otherUsername;
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            otherUsername = data.blackUsername();
+        } else {
+            otherUsername = data.whiteUsername();
+        }
+        if (otherUsername == null) {
+            otherUsername = "their opponent";
+        }
+        if (data.game().isInCheckmate(ChessGame.TeamColor.WHITE) || data.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            loadMessage.setMessage(loadMessage.getMessage() + "\n" + user.username() + " put " + otherUsername + " in checkmate. Game over.");
+            session.getRemote().sendString(gson.toJson(loadMessage));
+        } else if (data.game().isInStalemate(ChessGame.TeamColor.WHITE) || data.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+            loadMessage.setMessage(loadMessage.getMessage() + "\n" + user.username() + " put " + otherUsername + " in stalemate. Game over.");
+            session.getRemote().sendString(gson.toJson(loadMessage));
+        } else if (data.game().isInCheck(ChessGame.TeamColor.WHITE) || data.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+            loadMessage.setMessage(loadMessage.getMessage() + "\n" + user.username() + " put " + otherUsername + " in check.");
+        }
         sendOtherClients(session, command, loadMessage);
     }
 
