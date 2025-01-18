@@ -100,7 +100,18 @@ public class GameplayUI extends ServerFacade {
         }
         ChessPosition endPosition = translatePosition(end);
         for (ChessMove move : currentGame.validMoves(translatePosition(start))) {
-            if (move.getEndPosition().equals(endPosition)) {
+            ChessPiece.PieceType type = null;
+            if (move.getPromotionPiece() != null) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("What piece would you like to promote to? [Q, B, N, R]");
+                switch (scanner.nextLine().toLowerCase()) {
+                    case "q" -> type = ChessPiece.PieceType.QUEEN;
+                    case "b" -> type = ChessPiece.PieceType.BISHOP;
+                    case "n" -> type = ChessPiece.PieceType.KNIGHT;
+                    case "r" -> type = ChessPiece.PieceType.ROOK;
+                }
+            }
+            if (move.getEndPosition().equals(endPosition) && move.getPromotionPiece().equals(type)) {
                 try {
                     wsClient.send(UserGameCommand.CommandType.MAKE_MOVE, move);
                     return new UIData(UIType.GAMEPLAY, "");
