@@ -168,11 +168,8 @@ public class WSHandler {
 
     private void handleConnect(Session session, UserGameCommand command, GameData data, AuthData user) {
         if (command.getColor() != null) {
-            if (command.getColor().equals("WHITE") && data.whiteUsername() == null) {
-                GameDAO.updateGame(data.gameID(), user.username(), data.blackUsername(), data.gameName(), data.game());
-            } else if (command.getColor().equals("BLACK") && data.blackUsername() == null) {
-                GameDAO.updateGame(data.gameID(), data.whiteUsername(), user.username(), data.gameName(), data.game());
-            } else {
+            if ((command.getColor().equals("WHITE") && !user.username().equals(data.whiteUsername())) ||
+                    (command.getColor().equals("BLACK") && !user.username().equals(data.blackUsername()))) {
                 sendError(session, "Can't join as a color not available.");
             }
         }
@@ -191,7 +188,7 @@ public class WSHandler {
         }
         ServerMessage tmp = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         if (command.getColor() != null) {
-            String color = data.whiteUsername().equals(user.username()) ? "WHITE" : "BLACK";
+            String color = user.username().equals(data.whiteUsername()) ? "WHITE" : "BLACK";
             tmp.setMessage("User " + user.username() + " has joined the game as color " + color + ".");
         } else {
             tmp.setMessage("User " + user.username() + " is observing this game.");

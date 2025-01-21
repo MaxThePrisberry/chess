@@ -111,7 +111,7 @@ public class GameplayUI extends ServerFacade {
                     case "r" -> type = ChessPiece.PieceType.ROOK;
                 }
             }
-            if (move.getEndPosition().equals(endPosition) && move.getPromotionPiece().equals(type)) {
+            if (move.getEndPosition().equals(endPosition) && (move.getPromotionPiece() == null || move.getPromotionPiece().equals(type))) {
                 try {
                     wsClient.send(UserGameCommand.CommandType.MAKE_MOVE, move);
                     return new UIData(UIType.GAMEPLAY, "");
