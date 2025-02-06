@@ -23,7 +23,7 @@ public class WSClient extends Endpoint {
         this.gameID = gameID;
         this.color = color;
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        this.session = container.connectToServer(this, new URI("ws://localhost:8080/ws"));
+        this.session = container.connectToServer(this, new URI("ws://" + serverLocation + "/ws"));
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
