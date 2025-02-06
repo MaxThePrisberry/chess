@@ -21,9 +21,6 @@ public class ServiceTests {
     private final MasterService service = new MasterService();
 
     private static final String DATABASE_NAME;
-    private static final String USER;
-    private static final String PASSWORD;
-    private static final String CONNECTION_URL;
 
     /*
      * Load the database information for the db.properties file.
@@ -37,12 +34,6 @@ public class ServiceTests {
                 Properties props = new Properties();
                 props.load(propStream);
                 DATABASE_NAME = props.getProperty("db.name");
-                USER = props.getProperty("db.user");
-                PASSWORD = props.getProperty("db.password");
-
-                var host = props.getProperty("db.host");
-                var port = Integer.parseInt(props.getProperty("db.port"));
-                CONNECTION_URL = String.format("jdbc:mysql://%s:%d", host, port);
             }
         } catch (Exception ex) {
             throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
