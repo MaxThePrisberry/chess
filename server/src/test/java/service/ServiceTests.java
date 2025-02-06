@@ -12,6 +12,7 @@ import service.model.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,10 +20,39 @@ public class ServiceTests {
 
     private final MasterService service = new MasterService();
 
+    private static final String DATABASE_NAME;
+    private static final String USER;
+    private static final String PASSWORD;
+    private static final String CONNECTION_URL;
+
+    /*
+     * Load the database information for the db.properties file.
+     */
+    static {
+        try {
+            try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
+                if (propStream == null) {
+                    throw new Exception("Unable to load db.properties");
+                }
+                Properties props = new Properties();
+                props.load(propStream);
+                DATABASE_NAME = props.getProperty("db.name");
+                USER = props.getProperty("db.user");
+                PASSWORD = props.getProperty("db.password");
+
+                var host = props.getProperty("db.host");
+                var port = Integer.parseInt(props.getProperty("db.port"));
+                CONNECTION_URL = String.format("jdbc:mysql://%s:%d", host, port);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
+        }
+    }
+
     @BeforeAll
     static void createDatabase() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("DROP DATABASE chess;")) {
+            try (PreparedStatement statement = conn.prepareStatement("DROP DATABASE " + DATABASE_NAME + ";")) {
                 statement.executeUpdate();
             }
             //Adding this in to make the autograder happy...
