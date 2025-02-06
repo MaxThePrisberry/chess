@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import service.model.*;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,37 +21,9 @@ public class ServiceTests {
 
     private final MasterService service = new MasterService();
 
-    private static final String DATABASE_NAME;
-
-    /*
-     * Load the database information for the db.properties file.
-     */
-    static {
-        try {
-            try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
-                if (propStream == null) {
-                    throw new Exception("Unable to load db.properties");
-                }
-                Properties props = new Properties();
-                props.load(propStream);
-                DATABASE_NAME = props.getProperty("db.name");
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException("unable to process db.properties. " + ex.getMessage());
-        }
-    }
-
     @BeforeAll
     static void createDatabase() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("DROP DATABASE " + DATABASE_NAME + ";")) {
-                statement.executeUpdate();
-            }
-            //Adding this in to make the autograder happy...
-        } catch (DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-        DatabaseManager.createDatabase();
+        DatabaseManager.clearDatabase();
     }
 
     private void clearDatabase() {

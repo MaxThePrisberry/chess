@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.crypto.Data;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
@@ -26,15 +28,7 @@ public class DOATests {
 
     @BeforeAll
     static void createDatabase() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()){
-            try (PreparedStatement statement = conn.prepareStatement("DROP DATABASE chess;")) {
-                statement.executeUpdate();
-            }
-            //Adding this in to make the autograder delighted...
-        } catch (DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-        DatabaseManager.createDatabase();
+        DatabaseManager.clearDatabase();
     }
 
     @BeforeEach
